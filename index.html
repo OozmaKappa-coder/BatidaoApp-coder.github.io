@@ -3,27 +3,21 @@
 <html lang="pt-BR">
 
 <head>
-  <!-- Define o charset como UTF-8 para suportar caracteres especiais do português -->
   <meta charset="UTF-8" />
-
-  <!-- RF3: Responsividade - impede zoom automático no celular, define largura como a tela do dispositivo -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Título que aparece na aba do navegador -->
   <title>Batidão – Sistema de Pedidos</title>
 
-  <!-- =====================================================================
-       FIREBASE SDK (versão 9 compatível) - importado da CDN do Google
-       Firebase é o "servidor" gratuito que armazena e sincroniza os dados
-       em tempo real entre todos os dispositivos conectados à internet.
-       ===================================================================== -->
+  <!-- PWA: manifesto e ícone -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#3a7d2c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Batidão" />
+
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <!-- Módulo de autenticação: controla login/logout de usuários (RF1, RF8, RF13, RNF13) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <!-- Módulo Firestore: banco de dados em tempo real (RF6, RF7, RNF1–RNF12) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-  <!-- Google Fonts - fonte Syne (display) e DM Sans (corpo): escolha tipográfica marcante -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
@@ -456,12 +450,38 @@
       <input class="input" type="text" id="prod-desc"
              placeholder="Ex: 500ml, natural, sem conservantes" />
 
-      <label class="label">📸 Imagem (nome do arquivo em img/)</label>
-      <input class="input" type="text" id="prod-imagem"
-             placeholder="Ex: linguica.jpg  ou  suco-laranja.png" />
-      <div style="font-size:0.72rem;color:var(--texto-2);margin-top:-8px;margin-bottom:12px">
-        Coloque o arquivo dentro da pasta <strong>img/</strong> e digite o nome aqui
+      <label class="label">📸 Foto do Produto</label>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div id="prod-img-preview" style="
+          width:72px;height:72px;border-radius:10px;
+          background:var(--verde-bg);border:2px dashed var(--borda);
+          display:flex;align-items:center;justify-content:center;
+          font-size:2rem;overflow:hidden;flex-shrink:0">🖼️</div>
+        <div style="flex:1">
+          <label style="display:block;width:100%;padding:10px;background:var(--laranja);color:#fff;
+            border-radius:var(--raio-sm);text-align:center;font-weight:600;font-size:0.9rem;cursor:pointer">
+            📂 Escolher Foto
+            <input type="file" id="prod-imagem-file" accept="image/*"
+                   style="display:none" onchange="previewImagemProduto(this)">
+          </label>
+          <div style="font-size:0.7rem;color:var(--texto-2);margin-top:4px;text-align:center">JPG, PNG ou WEBP</div>
+        </div>
       </div>
+      <input type="hidden" id="prod-imagem" />
+
+      <details style="margin-bottom:12px">
+        <summary style="font-size:0.75rem;color:var(--texto-2);cursor:pointer;user-select:none">
+          Ou digitar nome do arquivo manualmente (pasta img/)
+        </summary>
+        <input class="input" type="text" id="prod-imagem-manual"
+               placeholder="Ex: linguica.jpg"
+               oninput="previewImagemManual(this.value)"
+               style="margin-top:6px" />
+        <div style="font-size:0.7rem;color:var(--texto-2);margin-top:4px">
+          Coloque o arquivo dentro da pasta <strong>img/</strong> ao lado do index.html
+        </div>
+      </details>
 
       <div style="display:flex;gap:16px;margin-bottom:14px">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500">
@@ -557,5 +577,25 @@
        Cada função está claramente delimitada e comentada linha a linha
        ===================================================================== -->
     <script src="script.js"></script>
+
+  <!-- PWA: registra o service worker para funcionamento offline e atualizações automáticas -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').then(function(reg) {
+          // Verifica se há atualização disponível
+          reg.onupdatefound = function() {
+            var installingWorker = reg.installing;
+            installingWorker.onstatechange = function() {
+              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nova versão disponível — atualiza automaticamente
+                window.location.reload();
+              }
+            };
+          };
+        });
+      });
+    }
+  </script>
 </body>
 </html>
