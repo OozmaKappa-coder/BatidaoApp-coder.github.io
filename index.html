@@ -456,46 +456,12 @@
       <input class="input" type="text" id="prod-desc"
              placeholder="Ex: 500ml, natural, sem conservantes" />
 
-      <label class="label">📸 Foto do Produto</label>
-
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div id="prod-img-preview" style="
-          width:72px;height:72px;border-radius:10px;
-          background:var(--verde-bg);border:2px dashed var(--borda);
-          display:flex;align-items:center;justify-content:center;
-          font-size:2rem;overflow:hidden;flex-shrink:0">
-          🖼️
-        </div>
-        <div style="flex:1">
-          <label style="
-            display:block;width:100%;padding:10px;
-            background:var(--laranja);color:#fff;
-            border-radius:var(--raio-sm);text-align:center;
-            font-weight:600;font-size:0.9rem;cursor:pointer">
-            📂 Escolher Foto
-            <input type="file" id="prod-imagem-file" accept="image/*"
-                   style="display:none" onchange="previewImagemProduto(this)">
-          </label>
-          <div style="font-size:0.7rem;color:var(--texto-2);margin-top:4px;text-align:center">
-            JPG, PNG ou WEBP
-          </div>
-        </div>
+      <label class="label">📸 Imagem (nome do arquivo em img/)</label>
+      <input class="input" type="text" id="prod-imagem"
+             placeholder="Ex: linguica.jpg  ou  suco-laranja.png" />
+      <div style="font-size:0.72rem;color:var(--texto-2);margin-top:-8px;margin-bottom:12px">
+        Coloque o arquivo dentro da pasta <strong>img/</strong> e digite o nome aqui
       </div>
-
-      <input type="hidden" id="prod-imagem" />
-
-      <details style="margin-bottom:12px">
-        <summary style="font-size:0.75rem;color:var(--texto-2);cursor:pointer;user-select:none">
-          Ou digitar nome do arquivo manualmente (pasta img/)
-        </summary>
-        <input class="input" type="text" id="prod-imagem-manual"
-               placeholder="Ex: linguica.jpg"
-               oninput="previewImagemManual(this.value)"
-               style="margin-top:6px" />
-        <div style="font-size:0.7rem;color:var(--texto-2);margin-top:4px">
-          Coloque o arquivo dentro da pasta <strong>img/</strong> ao lado do index.html
-        </div>
-      </details>
 
       <div style="display:flex;gap:16px;margin-bottom:14px">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500">
