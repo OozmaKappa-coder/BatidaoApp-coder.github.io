@@ -290,11 +290,11 @@ const firebaseConfig = {
    * 4. Salve — a foto aparecerá automaticamente!
    */
   function getImagemProduto(nome, categoria, imagemCampo) {
-    // Se o produto tem uma imagem cadastrada, usa ela
     if (imagemCampo) {
-      return `<img src="img/${imagemCampo}" alt="${nome}" onerror="this.style.display='none';this.parentElement.innerHTML=getEmojiProduto('${(nome||'').replace(/'/g,"\\'")}','${(categoria||'').replace(/'/g,"\\'")}')">`;
+      const src = imagemCampo.startsWith('data:') ? imagemCampo : 'img/' + imagemCampo;
+      const nomeEsc = (nome || '').replace(/"/g, '&quot;');
+      return '<img src="' + src + '" alt="' + nomeEsc + '" style="width:100%;height:100%;object-fit:cover;border-radius:10px" onerror="this.style.display=\'none\'">';
     }
-    // Sem imagem cadastrada: usa emoji
     return getEmojiProduto(nome, categoria);
   }
 
@@ -533,6 +533,13 @@ const firebaseConfig = {
     document.getElementById('prod-imagem').value    = '';
     document.getElementById('prod-mais-vendido').checked = false;
     document.getElementById('prod-promocao').checked     = false;
+    const preview = document.getElementById('prod-img-preview');
+    if (preview) preview.innerHTML = '🖼️';
+    const manualEl = document.getElementById('prod-imagem-manual');
+    if (manualEl) manualEl.value = '';
+    const fileEl = document.getElementById('prod-imagem-file');
+    if (fileEl) fileEl.value = '';
+    document.getElementById('btn-gerenciar-adicionais').style.display = 'none';
     document.getElementById('modal-produto').classList.add('aberto');
   }
 
@@ -550,10 +557,47 @@ const firebaseConfig = {
     document.getElementById('prod-imagem').value    = p.imagem || '';
     document.getElementById('prod-mais-vendido').checked = p.maisVendido || false;
     document.getElementById('prod-promocao').checked     = p.promocao || false;
-    document.getElementById('modal-produto').classList.add('aberto');
 
-    // Mostra o botão de gerenciar adicionais apenas ao editar
+    // Mostra preview da imagem atual
+    const preview = document.getElementById('prod-img-preview');
+    const manualEl = document.getElementById('prod-imagem-manual');
+    if (manualEl) manualEl.value = (p.imagem && !p.imagem.startsWith('data:')) ? p.imagem : '';
+    if (preview) {
+      if (p.imagem) {
+        const src = p.imagem.startsWith('data:') ? p.imagem : 'img/' + p.imagem;
+        preview.innerHTML = '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px" onerror="this.parentElement.innerHTML=\'❌\'">';
+      } else {
+        preview.innerHTML = '🖼️';
+      }
+    }
+
     document.getElementById('btn-gerenciar-adicionais').style.display = 'block';
+    document.getElementById('modal-produto').classList.add('aberto');
+  }
+
+  function previewImagemProduto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64 = e.target.result;
+      document.getElementById('prod-imagem').value = base64;
+      const preview = document.getElementById('prod-img-preview');
+      if (preview) preview.innerHTML = '<img src="' + base64 + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px">';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function previewImagemManual(valor) {
+    const nome = (valor || '').trim();
+    document.getElementById('prod-imagem').value = nome;
+    const preview = document.getElementById('prod-img-preview');
+    if (!preview) return;
+    if (nome) {
+      preview.innerHTML = '<img src="img/' + nome + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px" onerror="this.parentElement.innerHTML=\'❌\'">';
+    } else {
+      preview.innerHTML = '🖼️';
+    }
   }
 
   /**
