@@ -3,15 +3,15 @@
    Garante atualização automática sempre que o GitHub for atualizado.
    ===================================================================== */
 
-const CACHE_NAME = 'batidao-v1';
+const CACHE_NAME = 'batidao-v2';
 
 // Arquivos que ficam em cache para funcionar offline
 const ARQUIVOS_CACHE = [
-  '/',
-  '/index.html',
-  '/script.js',
-  '/style.css',
-  '/manifest.json'
+  './',
+  './index.html',
+  './script.js',
+  './style.css',
+  './manifest.json'
 ];
 
 // Instala e salva os arquivos no cache
