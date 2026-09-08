@@ -1,13 +1,11 @@
+<!-- index.html -->
 <!DOCTYPE html>
-<!-- RF3: Responsividade - estrutura HTML5 padrão para todos os navegadores -->
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Batidão – Sistema de Pedidos</title>
 
-  <!-- PWA: manifesto e ícone -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#3a7d2c" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -22,122 +20,192 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
-
 </head>
 
 <body>
 
-  <!-- =====================================================================
-       ELEMENTO: Tela de carregamento inicial
-       Exibida enquanto o Firebase inicializa e verifica autenticação
-       ===================================================================== -->
   <div id="tela-loading">
     <div class="logo-loading">Batidão</div>
     <div class="spinner"></div>
     <p class="loading-text">Carregando sistema…</p>
   </div>
 
-  <!-- =====================================================================
-       ELEMENTO: Tela de Login (RF8, RF13, RNF13, RNF14)
-       Dois perfis: GERENTE (acesso total) e ATENDENTE (acesso limitado)
-       ===================================================================== -->
   <div id="tela-login" class="tela-login-container">
     <div class="card-login">
-      <!-- Logotipo do app -->
+
       <div class="login-header">
         <div class="login-logo">🥤 Batidão</div>
         <div class="login-sub">Sistema de Pedidos</div>
       </div>
 
-      <!-- Seletor de perfil (RNF14) -->
       <div class="tabs-perfil">
-        <!-- Botão Gerente: ao clicar, preenche email padrão do gerente -->
         <button class="tab-btn ativo" id="tab-gerente"
-                onclick="selecionarPerfil('gerente')">👔 Gerente</button>
-        <!-- Botão Atendente: ao clicar, preenche email padrão do atendente -->
+                onclick="selecionarPerfil('gerente')">
+          👔 Gerente
+        </button>
+
         <button class="tab-btn" id="tab-atendente"
-                onclick="selecionarPerfil('atendente')">🧃 Atendente</button>
+                onclick="selecionarPerfil('atendente')">
+          🧃 Atendente
+        </button>
+
+        <button class="tab-btn" id="tab-cliente"
+                onclick="selecionarPerfil('cliente')">
+          👤 Cliente
+        </button>
       </div>
 
-      <!-- Mensagem de erro (exibida pelo JS quando login falha) -->
       <div class="msg-erro" id="erro-login"></div>
 
-      <!-- Formulário de login -->
-      <div>
-        <!-- Campo de e-mail -->
+      <div id="form-login-funcionario">
+
         <label class="campo-label">E-mail</label>
+
         <div class="campo-wrapper">
           <span class="campo-icone">✉️</span>
-          <input class="campo-input" type="email" id="input-email"
-                 placeholder="seu@email.com" autocomplete="email" />
+          <input
+            class="campo-input"
+            type="email"
+            id="input-email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+          />
         </div>
 
-        <!-- Campo de senha -->
         <label class="campo-label">Senha</label>
+
         <div class="campo-wrapper">
           <span class="campo-icone">🔒</span>
-          <input class="campo-input" type="password" id="input-senha"
-                 placeholder="••••••••" autocomplete="current-password" />
+          <input
+            class="campo-input"
+            type="password"
+            id="input-senha"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
         </div>
 
-        <!-- Botão de entrar: chama a função fazerLogin() -->
-        <button class="btn-primario" onclick="fazerLogin()">Entrar →</button>
+        <button class="btn-primario" onclick="fazerLogin()">
+          Entrar →
+        </button>
+
       </div>
 
+      <div id="form-login-cliente" style="display:none;">
+
+        <label class="campo-label">Nome</label>
+
+        <div class="campo-wrapper">
+          <span class="campo-icone">👤</span>
+          <input
+            class="campo-input"
+            type="text"
+            id="cliente-login-nome"
+            placeholder="Seu nome"
+            autocomplete="given-name"
+          />
+        </div>
+
+        <label class="campo-label">Sobrenome</label>
+
+        <div class="campo-wrapper">
+          <span class="campo-icone">👤</span>
+          <input
+            class="campo-input"
+            type="text"
+            id="cliente-login-sobrenome"
+            placeholder="Seu sobrenome"
+            autocomplete="family-name"
+          />
+        </div>
+
+        <label class="campo-label">Telefone</label>
+
+        <div class="campo-wrapper">
+          <span class="campo-icone">📱</span>
+          <input
+            class="campo-input"
+            type="tel"
+            id="cliente-login-telefone"
+            placeholder="(19) 99999-9999"
+            autocomplete="tel"
+          />
+        </div>
+
+        <button class="btn-primario" onclick="entrarComoCliente()">
+          Entrar como Cliente →
+        </button>
+
+      </div>
 
     </div>
   </div>
 
-  <!-- =====================================================================
-       ELEMENTO: App Principal (exibido após login bem-sucedido)
-       ===================================================================== -->
   <div id="app" class="app-container">
 
-    <!-- ---- BARRA SUPERIOR ---- -->
     <div class="topbar">
       <div class="topbar-logo">🥤 Batidão</div>
       <div class="topbar-titulo" id="titulo-tela">Pedidos</div>
-      <!-- Badge mostra o perfil do usuário logado (gerente/atendente) -->
       <div class="badge-perfil" id="badge-perfil">—</div>
     </div>
 
-    <!-- ---- ÁREA DE CONTEÚDO (as "telas" ficam aqui) ---- -->
     <div class="conteudo">
 
-      <!-- ==============================================================
-           TELA 1: NOVO PEDIDO (RF6, RF9, RF10)
-           Atendente seleciona produtos, quantidade, adiciona observações
-           ============================================================== -->
       <div class="tela ativa" id="tela-pedido">
 
-        <!-- Campo: nome do cliente (RNF8) -->
         <label class="label">👤 Nome do Cliente</label>
-        <input class="input" type="text" id="np-cliente"
-               placeholder="Ex: João Silva" />
+        <input
+          class="input"
+          type="text"
+          id="np-cliente"
+          placeholder="Ex: João Silva"
+        />
 
-        <!-- Campo: mesa ou número identificador -->
-        <label class="label">🪑 Mesa / Número</label>
-        <input class="input" type="text" id="np-mesa"
-               placeholder="Ex: Mesa 3 ou Balcão" />
+        <div id="campo-mesa">
+          <label class="label">🪑 Mesa / Número</label>
+          <input
+            class="input"
+            type="text"
+            id="np-mesa"
+            placeholder="Ex: Mesa 3 ou Balcão"
+          />
+        </div>
 
-        <!-- Campo: forma de pagamento (RF9, RNF6) -->
+        <div id="campo-endereco-entrega" style="display:none;">
+
+          <label class="label">📍 Endereço de Entrega</label>
+
+          <textarea
+            class="input"
+            id="np-endereco"
+            placeholder="Rua, número, bairro, complemento e referência"
+          ></textarea>
+
+          <div style="font-size:0.75rem;color:var(--texto-2);margin-top:-8px;margin-bottom:12px;">
+            Informe o endereço completo para a entrega.
+          </div>
+
+        </div>
+
         <label class="label">💳 Forma de Pagamento</label>
-        <select class="input" id="np-pagamento" title="Escolha a forma de pagamento">
+
+        <select
+          class="input"
+          id="np-pagamento"
+          title="Escolha a forma de pagamento"
+        >
           <option value="Dinheiro">💵 Dinheiro</option>
           <option value="Pix">📱 Pix</option>
           <option value="Débito">💳 Débito</option>
           <option value="Crédito">💳 Crédito</option>
         </select>
 
-        <!-- Divisória -->
         <div class="divider"></div>
 
-        <!-- Menu de produtos: renderizado pelo JS com base no Firestore -->
         <div class="secao-header">
           <div class="secao-titulo">Cardápio</div>
         </div>
 
-        <!-- Container onde o JS injeta os produtos por categoria -->
         <div id="menu-container">
           <div class="empty">
             <div class="empty-icon">🔄</div>
@@ -145,23 +213,20 @@
           </div>
         </div>
 
-        <!-- Divisória antes da observação -->
         <div class="divider"></div>
 
-        <!-- Campo de observação do pedido (RF9) -->
         <label class="label">📝 Observações do Pedido</label>
-        <textarea class="input" id="np-obs"
-                  placeholder="Ex: sem açúcar, copo grande, sem gelo…"></textarea>
 
-      </div><!-- /tela-pedido -->
+        <textarea
+          class="input"
+          id="np-obs"
+          placeholder="Ex: sem açúcar, copo grande, sem gelo…"
+        ></textarea>
 
-      <!-- ==============================================================
-           TELA 2: ACOMPANHAMENTO DE PEDIDOS (RF6, RF7)
-           Lista todos os pedidos em tempo real; muda status; envia para cozinha
-           ============================================================== -->
+      </div>
+
       <div class="tela" id="tela-acompanhamento">
 
-        <!-- Filtros de status -->
         <div class="filtros">
           <button class="filtro-btn ativo" onclick="filtrarPedidos('todos',this)">Todos</button>
           <button class="filtro-btn" onclick="filtrarPedidos('aguardando',this)">⏳ Aguardando</button>
@@ -170,7 +235,6 @@
           <button class="filtro-btn" onclick="filtrarPedidos('cancelado',this)">❌ Cancelado</button>
         </div>
 
-        <!-- Container onde o JS renderiza os cartões de pedido -->
         <div id="lista-pedidos">
           <div class="empty">
             <div class="empty-icon">📋</div>
@@ -178,148 +242,201 @@
           </div>
         </div>
 
-      </div><!-- /tela-acompanhamento -->
+      </div>
 
-      <!-- ==============================================================
-           TELA 3: CARDÁPIO (gerenciar produtos e categorias) (RF9, RNF4)
-           Exclusiva do GERENTE
-           ============================================================== -->
       <div class="tela" id="tela-cardapio">
+
         <div class="secao-header">
           <div class="secao-titulo">Cardápio</div>
-          <!-- Botão abre modal para adicionar novo produto -->
-          <button class="btn-sm" onclick="abrirModalProduto()">+ Produto</button>
+
+          <button class="btn-sm" onclick="abrirModalProduto()">
+            + Produto
+          </button>
         </div>
 
-        <!-- Lista de produtos (gerenciável) -->
         <div id="lista-produtos-admin"></div>
 
-      </div><!-- /tela-cardapio -->
+      </div>
 
-      <!-- ==============================================================
-           TELA 4: CLIENTES (RNF8, RNF9)
-           Cadastro de clientes e histórico de compras
-           ============================================================== -->
       <div class="tela" id="tela-clientes">
+
         <div class="secao-header">
           <div class="secao-titulo">Clientes</div>
-          <button class="btn-sm" onclick="abrirModalCliente()">+ Cliente</button>
+
+          <button class="btn-sm" onclick="abrirModalCliente()">
+            + Cliente
+          </button>
         </div>
 
-        <!-- Busca de clientes -->
-        <input class="input" type="search" id="busca-cliente"
-               placeholder="🔍 Buscar cliente…"
-               oninput="buscarCliente(this.value)" />
+        <input
+          class="input"
+          type="search"
+          id="busca-cliente"
+          placeholder="🔍 Buscar cliente…"
+          oninput="buscarCliente(this.value)"
+        />
 
-        <!-- Lista de clientes -->
         <div id="lista-clientes"></div>
 
-      </div><!-- /tela-clientes -->
+      </div>
 
-      <!-- ==============================================================
-           TELA 5: RELATÓRIOS (RNF10, RNF11, RNF12)
-           Exclusiva do GERENTE
-           ============================================================== -->
       <div class="tela" id="tela-relatorios">
-        <div class="secao-titulo secao-titulo-sm">📊 Relatórios</div>
 
-        <!-- Seletor de período -->
+        <div class="secao-titulo secao-titulo-sm">
+          📊 Relatórios
+        </div>
+
         <label class="label">Período</label>
-        <select class="input" id="rel-periodo" onchange="carregarRelatorio()" title="Escolha o período do relatório">
+
+        <select
+          class="input"
+          id="rel-periodo"
+          onchange="carregarRelatorio()"
+          title="Escolha o período do relatório"
+        >
           <option value="hoje">Hoje</option>
           <option value="semana">Esta Semana</option>
           <option value="mes">Este Mês</option>
         </select>
 
-        <!-- Grid de estatísticas rápidas -->
         <div class="stats-grid">
+
           <div class="stat-card">
             <div class="stat-valor" id="rel-total-pedidos">—</div>
             <div class="stat-label">Pedidos</div>
           </div>
+
           <div class="stat-card">
             <div class="stat-valor" id="rel-receita">—</div>
             <div class="stat-label">Receita (R$)</div>
           </div>
+
           <div class="stat-card">
             <div class="stat-valor" id="rel-ticket">—</div>
             <div class="stat-label">Ticket Médio</div>
           </div>
+
           <div class="stat-card">
             <div class="stat-valor" id="rel-cancelados">—</div>
             <div class="stat-label">Cancelados</div>
           </div>
+
         </div>
 
-        <!-- Produtos mais vendidos (RNF12) -->
         <div class="card">
-          <div class="secao-titulo secao-titulo-xs">🏆 Mais Vendidos</div>
+
+          <div class="secao-titulo secao-titulo-xs">
+            🏆 Mais Vendidos
+          </div>
+
           <div id="rel-mais-vendidos"></div>
+
         </div>
 
-      </div><!-- /tela-relatorios -->
+      </div>
 
-      <!-- ==============================================================
-           TELA 6: CONFIGURAÇÕES / PERFIL
-           ============================================================== -->
       <div class="tela" id="tela-config">
-        <div class="secao-titulo secao-titulo-sm">⚙️ Configurações</div>
 
-        <!-- Informações do usuário logado -->
+        <div class="secao-titulo secao-titulo-sm">
+          ⚙️ Configurações
+        </div>
+
         <div class="card">
+
           <div class="info-label">Usuário</div>
           <div class="info-value" id="cfg-email">—</div>
           <div class="info-subtitle" id="cfg-perfil">—</div>
+
         </div>
 
-        <!-- Informações da loja -->
         <div class="card">
+
           <div class="info-label-lg">Loja</div>
+
           <div class="toggle-wrap">
-            <span class="toggle-label">🌐 Sincronização ativa</span>
-            <!-- Toggle informativo; sincronização é sempre ativa com Firebase -->
+
+            <span class="toggle-label">
+              🌐 Sincronização ativa
+            </span>
+
             <label class="toggle" title="Status de sincronização">
-              <input type="checkbox" checked disabled aria-label="Sincronização de dados" />
+
+              <input
+                type="checkbox"
+                checked
+                disabled
+                aria-label="Sincronização de dados"
+              />
+
               <span class="toggle-slider"></span>
+
             </label>
+
           </div>
+
         </div>
 
-        <!-- Botão admin: Popular produtos (apenas para gerente) -->
-        <div class="card" id="card-popular-produtos" style="display: none;">
+        <div class="card" id="card-popular-produtos" style="display:none;">
+
           <div class="info-label-lg">⚡ Funções Admin</div>
-          <button class="btn-sm" onclick="popularProdutosComDados()" style="width: 100%; margin-bottom: 12px;">
+
+          <button
+            class="btn-sm"
+            onclick="popularProdutosComDados()"
+            style="width:100%;margin-bottom:12px;"
+          >
             📥 Popular 40+ Produtos
           </button>
-          <button class="btn-sm" onclick="definirDestaquesPadrao()" style="width: 100%; margin-bottom: 12px; background: var(--laranja); color: #fff;">
+
+          <button
+            class="btn-sm"
+            onclick="definirDestaquesPadrao()"
+            style="width:100%;margin-bottom:12px;background:var(--laranja);color:#fff;"
+          >
             ⭐ Definir Mais Pedidos e Promoções Padrão
           </button>
-          <div style="font-size: 0.75rem; color: var(--texto-2);">Marca automaticamente os produtos mais vendidos e ativa as seções de destaque no cardápio.</div>
+
+          <div style="font-size:0.75rem;color:var(--texto-2);">
+            Marca automaticamente os produtos mais vendidos e ativa as seções de destaque no cardápio.
+          </div>
+
         </div>
 
-        <!-- Botão de logout -->
-        <button class="btn-primario btn-logout"
-                onclick="fazerLogout()">🚪 Sair da conta</button>
+        <button
+          class="btn-primario btn-logout"
+          onclick="fazerLogout()"
+        >
+          🚪 Sair da conta
+        </button>
 
-      </div><!-- /tela-config -->
+      </div>
 
-    </div><!-- /conteudo -->
+    </div>
 
-    <!-- ---- BARRA FLUTUANTE DO CARRINHO ---- -->
-    <!-- Aparece quando há itens selecionados no novo pedido -->
-    <div class="carrinho-bar" id="carrinho-bar" onclick="abrirModalCarrinho()">
+    <div
+      class="carrinho-bar"
+      id="carrinho-bar"
+      onclick="abrirModalCarrinho()"
+    >
+
       <div>
         <div class="carrinho-titulo">🛒 Ver pedido</div>
         <div class="carrinho-info" id="carrinho-qtd">0 itens</div>
       </div>
-      <div class="carrinho-total" id="carrinho-total-bar">R$ 0,00</div>
+
+      <div class="carrinho-total" id="carrinho-total-bar">
+        R$ 0,00
+      </div>
+
     </div>
 
-    <!-- ---- BARRA DE NAVEGAÇÃO INFERIOR ---- -->
     <nav class="navbar">
-      <!-- Botão Novo Pedido (sempre visível) -->
-      <button class="nav-item ativo" id="nav-pedido"
-              onclick="mudarTela('pedido','Novo Pedido',this)">
+
+      <button
+        class="nav-item ativo"
+        id="nav-pedido"
+        onclick="mudarTela('pedido','Novo Pedido',this)"
+      >
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
                 d="M12 4v16m8-8H4"/>
@@ -327,19 +444,23 @@
         Pedido
       </button>
 
-      <!-- Botão Acompanhamento (sempre visível) -->
-      <button class="nav-item" id="nav-acompanhamento"
-              onclick="mudarTela('acompanhamento','Pedidos',this)">
+      <button
+        class="nav-item"
+        id="nav-acompanhamento"
+        onclick="mudarTela('acompanhamento','Pedidos',this)"
+      >
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
         </svg>
         Pedidos
       </button>
 
-      <!-- Botão Cardápio (apenas gerente) -->
-      <button class="nav-item" id="nav-cardapio"
-              onclick="mudarTela('cardapio','Cardápio',this)">
+      <button
+        class="nav-item"
+        id="nav-cardapio"
+        onclick="mudarTela('cardapio','Cardápio',this)"
+      >
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
                 d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
@@ -347,9 +468,11 @@
         Cardápio
       </button>
 
-      <!-- Botão Clientes -->
-      <button class="nav-item" id="nav-clientes"
-              onclick="mudarTela('clientes','Clientes',this)">
+      <button
+        class="nav-item"
+        id="nav-clientes"
+        onclick="mudarTela('clientes','Clientes',this)"
+      >
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
                 d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87M12 12a4 4 0 100-8 4 4 0 000 8z"/>
@@ -357,9 +480,11 @@
         Clientes
       </button>
 
-      <!-- Botão Relatórios (apenas gerente) -->
-      <button class="nav-item" id="nav-relatorios"
-              onclick="mudarTela('relatorios','Relatórios',this)">
+      <button
+        class="nav-item"
+        id="nav-relatorios"
+        onclick="mudarTela('relatorios','Relatórios',this)"
+      >
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
                 d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -367,235 +492,496 @@
         Relatórios
       </button>
 
-      <!-- Botão Configurações -->
-      <button class="nav-item" id="nav-config"
-              onclick="mudarTela('config','Configurações',this)">
+      <button
+        class="nav-item"
+        id="nav-config"
+        onclick="mudarTela('config','Configurações',this)"
+      >
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 001.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543-.826-2.37 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
         Config
       </button>
+
     </nav>
 
-  </div><!-- /app -->
-
-  <!-- =====================================================================
-       MODAIS
-       ===================================================================== -->
-
-  <!-- Modal: Adicionais do Produto -->
-  <div class="modal-overlay" id="modal-adicionais">
-    <div class="modal">
-      <div class="modal-titulo" id="modal-adicionais-titulo">Adicionais</div>
-      
-      <!-- Info do produto -->
-      <div style="padding: 12px 0; border-bottom: 1px solid var(--borda); margin-bottom: 16px;">
-        <div style="font-weight: 600; margin-bottom: 4px;" id="modal-adicionais-produto">Produto</div>
-        <div style="color: var(--laranja); font-size: 1.1rem; font-weight: 700;" id="modal-adicionais-preco">R$ 0,00</div>
-      </div>
-
-      <!-- Lista de adicionais -->
-      <div id="modal-adicionais-lista" style="margin-bottom: 16px;"></div>
-
-      <!-- Divisória -->
-      <div class="divider"></div>
-
-      <!-- Observações -->
-      <label class="label">📝 Observações do Produto</label>
-      <textarea class="input" id="modal-adicionais-obs" placeholder="Ex: Sem cebola, molho à parte..." style="margin-bottom: 16px;"></textarea>
-
-      <!-- Botões -->
-      <button class="btn-primario" onclick="adicionarAoCarrinhoComAdicionais()">✅ Adicionar ao Carrinho</button>
-      <br><br>
-      <button class="btn-secundario" onclick="fecharModal('modal-adicionais')">Cancelar</button>
-    </div>
   </div>
 
-  <!-- Modal: Carrinho / Confirmação de Pedido -->
-  <div class="modal-overlay" id="modal-carrinho">
+  <div class="modal-overlay" id="modal-adicionais">
+
     <div class="modal">
-      <div class="modal-titulo">🛒 Confirmar Pedido</div>
-      <div id="modal-carrinho-itens"></div>
+
+      <div class="modal-titulo" id="modal-adicionais-titulo">
+        Adicionais
+      </div>
+
+      <div style="padding:12px 0;border-bottom:1px solid var(--borda);margin-bottom:16px;">
+
+        <div
+          style="font-weight:600;margin-bottom:4px;"
+          id="modal-adicionais-produto"
+        >
+          Produto
+        </div>
+
+        <div
+          style="color:var(--laranja);font-size:1.1rem;font-weight:700;"
+          id="modal-adicionais-preco"
+        >
+          R$ 0,00
+        </div>
+
+      </div>
+
+      <div
+        id="modal-adicionais-lista"
+        style="margin-bottom:16px;"
+      ></div>
+
       <div class="divider"></div>
+
+      <label class="label">📝 Observações do Produto</label>
+
+      <textarea
+        class="input"
+        id="modal-adicionais-obs"
+        placeholder="Ex: Sem cebola, molho à parte..."
+        style="margin-bottom:16px;"
+      ></textarea>
+
+      <button
+        class="btn-primario"
+        onclick="adicionarAoCarrinhoComAdicionais()"
+      >
+        ✅ Adicionar ao Carrinho
+      </button>
+
+      <br><br>
+
+      <button
+        class="btn-secundario"
+        onclick="fecharModal('modal-adicionais')"
+      >
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="modal-overlay" id="modal-carrinho">
+
+    <div class="modal">
+
+      <div class="modal-titulo">
+        🛒 Confirmar Pedido
+      </div>
+
+      <div id="modal-carrinho-itens"></div>
+
+      <div class="divider"></div>
+
       <div class="modal-total-row">
         <span class="modal-total-label">Total</span>
         <span class="modal-total-valor" id="modal-total">R$ 0,00</span>
       </div>
-      <button class="btn-primario" onclick="confirmarPedido()">✅ Enviar Pedido →</button>
+
+      <button
+        class="btn-primario"
+        onclick="confirmarPedido()"
+      >
+        ✅ Enviar Pedido →
+      </button>
+
       <br><br>
-      <button class="btn-secundario" onclick="fecharModal('modal-carrinho')">Cancelar</button>
+
+      <button
+        class="btn-secundario"
+        onclick="fecharModal('modal-carrinho')"
+      >
+        Cancelar
+      </button>
+
     </div>
+
   </div>
 
-  <!-- Modal: Adicionar / Editar Produto -->
   <div class="modal-overlay" id="modal-produto">
+
     <div class="modal">
-      <div class="modal-titulo" id="modal-produto-titulo">+ Novo Produto</div>
-      <input type="hidden" id="prod-id" /> <!-- ID do produto (para edição) -->
+
+      <div class="modal-titulo" id="modal-produto-titulo">
+        + Novo Produto
+      </div>
+
+      <input type="hidden" id="prod-id" />
 
       <label class="label">Nome do Produto</label>
-      <input class="input" type="text" id="prod-nome" placeholder="Ex: Suco de Laranja" />
+
+      <input
+        class="input"
+        type="text"
+        id="prod-nome"
+        placeholder="Ex: Suco de Laranja"
+      />
 
       <label class="label">Categoria</label>
-      <input class="input" type="text" id="prod-categoria"
-             placeholder="Ex: Sucos, Lanches, Adicionais…" />
+
+      <input
+        class="input"
+        type="text"
+        id="prod-categoria"
+        placeholder="Ex: Sucos, Lanches, Adicionais…"
+      />
 
       <label class="label">Preço (R$)</label>
-      <input class="input" type="number" id="prod-preco"
-             step="0.01" min="0" placeholder="0,00" />
+
+      <input
+        class="input"
+        type="number"
+        id="prod-preco"
+        step="0.01"
+        min="0"
+        placeholder="0,00"
+      />
 
       <label class="label">Descrição (opcional)</label>
-      <input class="input" type="text" id="prod-desc"
-             placeholder="Ex: 500ml, natural, sem conservantes" />
+
+      <input
+        class="input"
+        type="text"
+        id="prod-desc"
+        placeholder="Ex: 500ml, natural, sem conservantes"
+      />
 
       <label class="label">📸 Foto do Produto</label>
 
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div id="prod-img-preview" style="
-          width:72px;height:72px;border-radius:10px;
-          background:var(--verde-bg);border:2px dashed var(--borda);
-          display:flex;align-items:center;justify-content:center;
-          font-size:2rem;overflow:hidden;flex-shrink:0">🖼️</div>
-        <div style="flex:1">
-          <label style="display:block;width:100%;padding:10px;background:var(--laranja);color:#fff;
-            border-radius:var(--raio-sm);text-align:center;font-weight:600;font-size:0.9rem;cursor:pointer">
-            📂 Escolher Foto
-            <input type="file" id="prod-imagem-file" accept="image/*"
-                   style="display:none" onchange="previewImagemProduto(this)">
-          </label>
-          <div style="font-size:0.7rem;color:var(--texto-2);margin-top:4px;text-align:center">JPG, PNG ou WEBP</div>
+
+        <div
+          id="prod-img-preview"
+          style="width:72px;height:72px;border-radius:10px;background:var(--verde-bg);border:2px dashed var(--borda);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0"
+        >
+          🖼️
         </div>
+
+        <div style="flex:1">
+
+          <label
+            style="display:block;width:100%;padding:10px;background:var(--laranja);color:#fff;border-radius:var(--raio-sm);text-align:center;font-weight:600;font-size:0.9rem;cursor:pointer"
+          >
+            📂 Escolher Foto
+
+            <input
+              type="file"
+              id="prod-imagem-file"
+              accept="image/*"
+              style="display:none"
+              onchange="previewImagemProduto(this)"
+            />
+
+          </label>
+
+          <div
+            style="font-size:0.7rem;color:var(--texto-2);margin-top:4px;text-align:center"
+          >
+            JPG, PNG ou WEBP
+          </div>
+
+        </div>
+
       </div>
+
       <input type="hidden" id="prod-imagem" />
 
       <details style="margin-bottom:12px">
-        <summary style="font-size:0.75rem;color:var(--texto-2);cursor:pointer;user-select:none">
+
+        <summary
+          style="font-size:0.75rem;color:var(--texto-2);cursor:pointer;user-select:none"
+        >
           Ou digitar nome do arquivo manualmente (pasta img/)
         </summary>
-        <input class="input" type="text" id="prod-imagem-manual"
-               placeholder="Ex: linguica.jpg"
-               oninput="previewImagemManual(this.value)"
-               style="margin-top:6px" />
-        <div style="font-size:0.7rem;color:var(--texto-2);margin-top:4px">
+
+        <input
+          class="input"
+          type="text"
+          id="prod-imagem-manual"
+          placeholder="Ex: linguica.jpg"
+          oninput="previewImagemManual(this.value)"
+          style="margin-top:6px"
+        />
+
+        <div
+          style="font-size:0.7rem;color:var(--texto-2);margin-top:4px"
+        >
           Coloque o arquivo dentro da pasta <strong>img/</strong> ao lado do index.html
         </div>
+
       </details>
 
       <div style="display:flex;gap:16px;margin-bottom:14px">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500">
-          <input type="checkbox" id="prod-mais-vendido" style="width:18px;height:18px;accent-color:var(--laranja)">
+
+        <label
+          style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500"
+        >
+          <input
+            type="checkbox"
+            id="prod-mais-vendido"
+            style="width:18px;height:18px;accent-color:var(--laranja)"
+          />
           ⭐ Mais Pedido
         </label>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500">
-          <input type="checkbox" id="prod-promocao" style="width:18px;height:18px;accent-color:var(--vermelho)">
+
+        <label
+          style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500"
+        >
+          <input
+            type="checkbox"
+            id="prod-promocao"
+            style="width:18px;height:18px;accent-color:var(--vermelho)"
+          />
           🔥 Promoção
         </label>
+
       </div>
 
-      <button class="btn-primario" onclick="salvarProduto()">💾 Salvar Produto</button>
+      <button
+        class="btn-primario"
+        onclick="salvarProduto()"
+      >
+        💾 Salvar Produto
+      </button>
+
       <br><br>
-      <!-- Botão para gerenciar adicionais (aparece apenas ao editar) -->
-      <button class="btn-sm" id="btn-gerenciar-adicionais" style="display:none;width:100%;margin-bottom:12px" onclick="abrirModalAdicionaisProduto()">⚡ Gerenciar Adicionais</button>
+
+      <button
+        class="btn-sm"
+        id="btn-gerenciar-adicionais"
+        style="display:none;width:100%;margin-bottom:12px"
+        onclick="abrirModalAdicionaisProduto()"
+      >
+        ⚡ Gerenciar Adicionais
+      </button>
+
       <br><br>
-      <button class="btn-secundario" onclick="fecharModal('modal-produto')">Cancelar</button>
+
+      <button
+        class="btn-secundario"
+        onclick="fecharModal('modal-produto')"
+      >
+        Cancelar
+      </button>
+
     </div>
+
   </div>
 
-  <!-- Modal: Gerenciar Adicionais do Produto -->
   <div class="modal-overlay" id="modal-adicionais-gerenciar">
+
     <div class="modal">
-      <div class="modal-titulo">⚡ Adicionais - <span id="modal-adic-prod-nome"></span></div>
-      
-      <!-- Lista de adicionais -->
-      <div id="lista-adicionais-produto" style="margin-bottom:16px;"></div>
 
-      <!-- Botão para adicionar novo adicional -->
-      <button class="btn-sm" onclick="abrirFormAdicional()" style="width:100%;margin-bottom:12px">+ Novo Adicional</button>
-
-      <!-- Form para adicionar/editar adicional (oculto por padrão) -->
-      <div id="form-adicional" style="display:none;background:var(--superficie);padding:12px;border-radius:var(--raio-sm);margin-bottom:12px">
-        <input type="hidden" id="adic-id" />
-        <label class="label">Nome</label>
-        <input class="input" type="text" id="adic-nome" placeholder="Ex: Whey Protein" style="margin-bottom:8px" />
-        <label class="label">Preço (R$)</label>
-        <input class="input" type="number" id="adic-preco" placeholder="5.00" step="0.01" min="0" style="margin-bottom:8px" />
-        <button class="btn-sm" onclick="salvarAdicional()" style="width:100%;margin-bottom:8px">✅ Salvar Adicional</button>
-        <button class="btn-sm-vermelho" onclick="cancelarFormAdicional()" style="width:100%">Cancelar</button>
+      <div class="modal-titulo">
+        ⚡ Adicionais -
+        <span id="modal-adic-prod-nome"></span>
       </div>
 
-      <!-- Divisória -->
+      <div
+        id="lista-adicionais-produto"
+        style="margin-bottom:16px;"
+      ></div>
+
+      <button
+        class="btn-sm"
+        onclick="abrirFormAdicional()"
+        style="width:100%;margin-bottom:12px"
+      >
+        + Novo Adicional
+      </button>
+
+      <div
+        id="form-adicional"
+        style="display:none;background:var(--superficie);padding:12px;border-radius:var(--raio-sm);margin-bottom:12px"
+      >
+
+        <input type="hidden" id="adic-id" />
+
+        <label class="label">Nome</label>
+
+        <input
+          class="input"
+          type="text"
+          id="adic-nome"
+          placeholder="Ex: Whey Protein"
+          style="margin-bottom:8px"
+        />
+
+        <label class="label">Preço (R$)</label>
+
+        <input
+          class="input"
+          type="number"
+          id="adic-preco"
+          placeholder="5.00"
+          step="0.01"
+          min="0"
+          style="margin-bottom:8px"
+        />
+
+        <button
+          class="btn-sm"
+          onclick="salvarAdicional()"
+          style="width:100%;margin-bottom:8px"
+        >
+          ✅ Salvar Adicional
+        </button>
+
+        <button
+          class="btn-sm-vermelho"
+          onclick="cancelarFormAdicional()"
+          style="width:100%"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
       <div class="divider"></div>
 
-      <button class="btn-primario" onclick="fecharModal('modal-adicionais-gerenciar')">Pronto</button>
+      <button
+        class="btn-primario"
+        onclick="fecharModal('modal-adicionais-gerenciar')"
+      >
+        Pronto
+      </button>
+
     </div>
+
   </div>
 
-  <!-- Modal: Comprovante de Venda (RNF7) -->
   <div class="modal-overlay" id="modal-comprovante">
+
     <div class="modal">
+
       <div class="modal-titulo">🧾 Comprovante</div>
+
       <div id="comprovante-conteudo"></div>
-      <button class="btn-primario modal-btn"
-              onclick="fecharModal('modal-comprovante')">Fechar</button>
+
+      <button
+        class="btn-primario modal-btn"
+        onclick="fecharModal('modal-comprovante')"
+      >
+        Fechar
+      </button>
+
     </div>
+
   </div>
 
-  <!-- Modal: Histórico de Cliente (RNF9) -->
   <div class="modal-overlay" id="modal-historico">
+
     <div class="modal">
-      <div class="modal-titulo" id="historico-titulo">Histórico</div>
+
+      <div
+        class="modal-titulo"
+        id="historico-titulo"
+      >
+        Histórico
+      </div>
+
       <div id="historico-conteudo"></div>
-      <button class="btn-secundario modal-btn"
-              onclick="fecharModal('modal-historico')">Fechar</button>
+
+      <button
+        class="btn-secundario modal-btn"
+        onclick="fecharModal('modal-historico')"
+      >
+        Fechar
+      </button>
+
     </div>
+
   </div>
 
-  <!-- Modal: Adicionar Cliente (RNF8) -->
   <div class="modal-overlay" id="modal-cliente">
+
     <div class="modal">
-      <div class="modal-titulo">+ Novo Cliente</div>
+
+      <div class="modal-titulo">
+        + Novo Cliente
+      </div>
 
       <label class="label">Nome</label>
-      <input class="input" type="text" id="cli-nome" placeholder="Nome completo" />
+
+      <input
+        class="input"
+        type="text"
+        id="cli-nome"
+        placeholder="Nome completo"
+      />
 
       <label class="label">Telefone</label>
-      <input class="input" type="tel" id="cli-tel" placeholder="(19) 99999-9999" />
 
-      <button class="btn-primario" onclick="salvarCliente()">💾 Salvar Cliente</button>
+      <input
+        class="input"
+        type="tel"
+        id="cli-tel"
+        placeholder="(19) 99999-9999"
+      />
+
+      <button
+        class="btn-primario"
+        onclick="salvarCliente()"
+      >
+        💾 Salvar Cliente
+      </button>
+
       <br><br>
-      <button class="btn-secundario" onclick="fecharModal('modal-cliente')">Cancelar</button>
+
+      <button
+        class="btn-secundario"
+        onclick="fecharModal('modal-cliente')"
+      >
+        Cancelar
+      </button>
+
     </div>
+
   </div>
 
-  <!-- Notificação toast reutilizável -->
   <div class="toast" id="toast"></div>
 
-  <!-- =====================================================================
-       JAVASCRIPT PRINCIPAL
-       Cada função está claramente delimitada e comentada linha a linha
-       ===================================================================== -->
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 
-  <!-- PWA: registra o service worker para funcionamento offline e atualizações automáticas -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
+
         navigator.serviceWorker.register('sw.js').then(function(reg) {
-          // Verifica se há atualização disponível
+
           reg.onupdatefound = function() {
+
             var installingWorker = reg.installing;
+
             installingWorker.onstatechange = function() {
-              if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nova versão disponível — atualiza automaticamente
+
+              if (
+                installingWorker.state === 'installed' &&
+                navigator.serviceWorker.controller
+              ) {
                 window.location.reload();
               }
+
             };
+
           };
+
         });
+
       });
     }
   </script>
+
 </body>
 </html>
