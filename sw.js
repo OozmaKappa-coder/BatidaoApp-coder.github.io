@@ -1,7 +1,4 @@
-/* =====================================================================
-   SERVICE WORKER — Batidão App
-   Atualização automática do aplicativo
-   ===================================================================== */
+/* sw.js */
 
 const CACHE_NAME = 'batidao-v3-cliente';
 
@@ -22,11 +19,13 @@ self.addEventListener(
     event.waitUntil(
       caches
         .open(CACHE_NAME)
-        .then(function(cache) {
-          return cache.addAll(
-            ARQUIVOS_CACHE
-          );
-        })
+        .then(
+          function(cache) {
+            return cache.addAll(
+              ARQUIVOS_CACHE
+            );
+          }
+        )
     );
   }
 );
@@ -37,31 +36,35 @@ self.addEventListener(
 
     event.waitUntil(
 
-      caches
-        .keys()
-        .then(function(nomes) {
+      caches.keys()
+        .then(
+          function(nomes) {
 
-          return Promise.all(
+            return Promise.all(
 
-            nomes
-              .filter(function(nome) {
-                return nome !==
-                  CACHE_NAME;
-              })
+              nomes
+                .filter(
+                  function(nome) {
+                    return nome !==
+                      CACHE_NAME;
+                  }
+                )
+                .map(
+                  function(nome) {
+                    return caches.delete(
+                      nome
+                    );
+                  }
+                )
 
-              .map(function(nome) {
-                return caches.delete(
-                  nome
-                );
-              })
-
-          );
-
-        })
-
-        .then(function() {
-          return self.clients.claim();
-        })
+            );
+          }
+        )
+        .then(
+          function() {
+            return self.clients.claim();
+          }
+        )
     );
   }
 );
@@ -87,33 +90,35 @@ self.addEventListener(
     event.respondWith(
 
       fetch(event.request)
+        .then(
+          function(resposta) {
 
-        .then(function(resposta) {
+            const copiaResposta =
+              resposta.clone();
 
-          const copiaResposta =
-            resposta.clone();
+            caches
+              .open(CACHE_NAME)
+              .then(
+                function(cache) {
 
-          caches
-            .open(CACHE_NAME)
-            .then(function(cache) {
-
-              cache.put(
-                event.request,
-                copiaResposta
+                  cache.put(
+                    event.request,
+                    copiaResposta
+                  );
+                }
               );
 
-            });
+            return resposta;
+          }
+        )
+        .catch(
+          function() {
 
-          return resposta;
-        })
-
-        .catch(function() {
-
-          return caches.match(
-            event.request
-          );
-
-        })
+            return caches.match(
+              event.request
+            );
+          }
+        )
     );
   }
 );
