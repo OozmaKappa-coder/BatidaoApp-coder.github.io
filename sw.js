@@ -1,120 +1,119 @@
 /* =====================================================================
    SERVICE WORKER — Batidão App
+   Atualização automática do aplicativo
    ===================================================================== */
 
 const CACHE_NAME = 'batidao-v3-cliente';
 
 const ARQUIVOS_CACHE = [
-    './',
-    './index.html',
-    './script.js',
-    './style.css',
-    './manifest.json'
+  './',
+  './index.html',
+  './script.js',
+  './style.css',
+  './manifest.json'
 ];
 
-
-self.addEventListener('install', function(event) {
+self.addEventListener(
+  'install',
+  function(event) {
 
     self.skipWaiting();
 
     event.waitUntil(
-
-        caches
-            .open(CACHE_NAME)
-            .then(function(cache) {
-
-                return cache.addAll(
-                    ARQUIVOS_CACHE
-                );
-
-            })
-
+      caches
+        .open(CACHE_NAME)
+        .then(function(cache) {
+          return cache.addAll(
+            ARQUIVOS_CACHE
+          );
+        })
     );
+  }
+);
 
-});
-
-
-self.addEventListener('activate', function(event) {
+self.addEventListener(
+  'activate',
+  function(event) {
 
     event.waitUntil(
 
-        caches
-            .keys()
-            .then(function(nomes) {
+      caches
+        .keys()
+        .then(function(nomes) {
 
-                return Promise.all(
+          return Promise.all(
 
-                    nomes
-                        .filter(function(nome) {
+            nomes
+              .filter(function(nome) {
+                return nome !==
+                  CACHE_NAME;
+              })
 
-                            return nome !== CACHE_NAME;
-
-                        })
-                        .map(function(nome) {
-
-                            return caches.delete(nome);
-
-                        })
-
+              .map(function(nome) {
+                return caches.delete(
+                  nome
                 );
+              })
 
-            })
-            .then(function() {
+          );
 
-                return self.clients.claim();
+        })
 
-            })
-
+        .then(function() {
+          return self.clients.claim();
+        })
     );
+  }
+);
 
-});
-
-
-self.addEventListener('fetch', function(event) {
+self.addEventListener(
+  'fetch',
+  function(event) {
 
     if (
-        event.request.url.includes('firebase') ||
-        event.request.url.includes('firestore') ||
-        event.request.url.includes('googleapis')
+      event.request.url.includes(
+        'firebase'
+      ) ||
+      event.request.url.includes(
+        'firestore'
+      ) ||
+      event.request.url.includes(
+        'googleapis'
+      )
     ) {
-
-        return;
-
+      return;
     }
-
 
     event.respondWith(
 
-        fetch(event.request)
+      fetch(event.request)
 
-            .then(function(resposta) {
+        .then(function(resposta) {
 
-                const copiaResposta =
-                    resposta.clone();
+          const copiaResposta =
+            resposta.clone();
 
-                caches
-                    .open(CACHE_NAME)
-                    .then(function(cache) {
+          caches
+            .open(CACHE_NAME)
+            .then(function(cache) {
 
-                        cache.put(
-                            event.request,
-                            copiaResposta
-                        );
+              cache.put(
+                event.request,
+                copiaResposta
+              );
 
-                    });
+            });
 
-                return resposta;
+          return resposta;
+        })
 
-            })
+        .catch(function() {
 
-            .catch(function() {
+          return caches.match(
+            event.request
+          );
 
-                return caches.match(
-                    event.request
-                );
-
-            })
-
+        })
     );
-
-});
+  }
+);
