@@ -1,987 +1,1361 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Batidão – Sistema de Pedidos</title>
+    <meta charset="UTF-8">
 
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#3a7d2c" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Batidão" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <meta name="theme-color" content="#3a7d2c">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <meta name="description"
+          content="Sistema de pedidos da Casa de Sucos Batidão">
 
-  <link rel="stylesheet" href="style.css" />
+    <title>Batidão – Sistema de Pedidos</title>
+
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="icon" type="image/png" href="img/icon-192.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <div id="tela-loading">
-    <div class="logo-loading">Batidão</div>
-    <div class="spinner"></div>
-    <p class="loading-text">Carregando sistema…</p>
-  </div>
+<!-- ============================================================
+     TELA DE LOGIN
+     ============================================================ -->
 
-  <div id="tela-login" class="tela-login-container">
-    <div class="card-login">
+<div id="tela-login" class="tela-login">
 
-      <div class="login-header">
-        <div class="login-logo">🥤 Batidão</div>
-        <div class="login-sub">Sistema de Pedidos</div>
-      </div>
+    <div class="login-container">
 
-      <div class="tabs-perfil">
-        <button class="tab-btn ativo" id="tab-gerente"
+        <div class="login-logo">
+            <div class="logo-circulo">
+                🍹
+            </div>
+
+            <h1>Batidão</h1>
+
+            <p>Sistema de Pedidos</p>
+        </div>
+
+
+        <!-- ====================================================
+             ABAS DE PERFIL
+             ==================================================== -->
+
+        <div class="login-tabs">
+
+            <button
+                class="tab-btn active"
+                id="tab-gerente"
                 onclick="selecionarPerfil('gerente')">
-          👔 Gerente
-        </button>
+                👔 Gerente
+            </button>
 
-        <button class="tab-btn" id="tab-atendente"
+            <button
+                class="tab-btn"
+                id="tab-atendente"
                 onclick="selecionarPerfil('atendente')">
-          🧃 Atendente
-        </button>
+                🧑‍💼 Atendente
+            </button>
 
-        <button class="tab-btn" id="tab-cliente"
+            <button
+                class="tab-btn"
+                id="tab-cliente"
                 onclick="selecionarPerfil('cliente')">
-          👤 Cliente
-        </button>
-      </div>
-
-      <div class="msg-erro" id="erro-login"></div>
-
-      <div id="form-login-funcionario">
-
-        <label class="campo-label">E-mail</label>
-
-        <div class="campo-wrapper">
-          <span class="campo-icone">✉️</span>
-          <input
-            class="campo-input"
-            type="email"
-            id="input-email"
-            placeholder="seu@email.com"
-            autocomplete="email"
-          />
-        </div>
-
-        <label class="campo-label">Senha</label>
-
-        <div class="campo-wrapper">
-          <span class="campo-icone">🔒</span>
-          <input
-            class="campo-input"
-            type="password"
-            id="input-senha"
-            placeholder="••••••••"
-            autocomplete="current-password"
-          />
-        </div>
-
-        <button class="btn-primario" onclick="fazerLogin()">
-          Entrar →
-        </button>
-
-      </div>
-
-      <div id="form-login-cliente" style="display:none;">
-
-        <label class="campo-label">Nome</label>
-
-        <div class="campo-wrapper">
-          <span class="campo-icone">👤</span>
-          <input
-            class="campo-input"
-            type="text"
-            id="cliente-login-nome"
-            placeholder="Seu nome"
-            autocomplete="given-name"
-          />
-        </div>
-
-        <label class="campo-label">Sobrenome</label>
-
-        <div class="campo-wrapper">
-          <span class="campo-icone">👤</span>
-          <input
-            class="campo-input"
-            type="text"
-            id="cliente-login-sobrenome"
-            placeholder="Seu sobrenome"
-            autocomplete="family-name"
-          />
-        </div>
-
-        <label class="campo-label">Telefone</label>
-
-        <div class="campo-wrapper">
-          <span class="campo-icone">📱</span>
-          <input
-            class="campo-input"
-            type="tel"
-            id="cliente-login-telefone"
-            placeholder="(19) 99999-9999"
-            autocomplete="tel"
-          />
-        </div>
-
-        <button class="btn-primario" onclick="entrarComoCliente()">
-          Entrar como Cliente →
-        </button>
-
-      </div>
-
-    </div>
-  </div>
-
-  <div id="app" class="app-container">
-
-    <div class="topbar">
-      <div class="topbar-logo">🥤 Batidão</div>
-      <div class="topbar-titulo" id="titulo-tela">Pedidos</div>
-      <div class="badge-perfil" id="badge-perfil">—</div>
-    </div>
-
-    <div class="conteudo">
-
-      <div class="tela ativa" id="tela-pedido">
-
-        <label class="label">👤 Nome do Cliente</label>
-        <input
-          class="input"
-          type="text"
-          id="np-cliente"
-          placeholder="Ex: João Silva"
-        />
-
-        <div id="campo-mesa">
-          <label class="label">🪑 Mesa / Número</label>
-          <input
-            class="input"
-            type="text"
-            id="np-mesa"
-            placeholder="Ex: Mesa 3 ou Balcão"
-          />
-        </div>
-
-        <div id="campo-endereco-entrega" style="display:none;">
-
-          <label class="label">📍 Endereço de Entrega</label>
-
-          <textarea
-            class="input"
-            id="np-endereco"
-            placeholder="Rua, número, bairro, complemento e referência"
-          ></textarea>
-
-          <div style="font-size:0.75rem;color:var(--texto-2);margin-top:-8px;margin-bottom:12px;">
-            Informe o endereço completo para a entrega.
-          </div>
+                👤 Cliente
+            </button>
 
         </div>
 
-        <label class="label">💳 Forma de Pagamento</label>
 
-        <select
-          class="input"
-          id="np-pagamento"
-          title="Escolha a forma de pagamento"
-        >
-          <option value="Dinheiro">💵 Dinheiro</option>
-          <option value="Pix">📱 Pix</option>
-          <option value="Débito">💳 Débito</option>
-          <option value="Crédito">💳 Crédito</option>
-        </select>
+        <!-- ====================================================
+             LOGIN DE FUNCIONÁRIOS
+             ==================================================== -->
 
-        <div class="divider"></div>
+        <div id="form-login-funcionario">
 
-        <div class="secao-header">
-          <div class="secao-titulo">Cardápio</div>
-        </div>
+            <div class="campo-login">
 
-        <div id="menu-container">
-          <div class="empty">
-            <div class="empty-icon">🔄</div>
-            <div class="empty-msg">Carregando cardápio…</div>
-          </div>
-        </div>
+                <label for="login-email">
+                    📧 E-mail
+                </label>
 
-        <div class="divider"></div>
+                <input
+                    type="email"
+                    id="login-email"
+                    class="input"
+                    placeholder="Digite seu e-mail"
+                    autocomplete="email">
 
-        <label class="label">📝 Observações do Pedido</label>
+            </div>
 
-        <textarea
-          class="input"
-          id="np-obs"
-          placeholder="Ex: sem açúcar, copo grande, sem gelo…"
-        ></textarea>
 
-      </div>
+            <div class="campo-login">
 
-      <div class="tela" id="tela-acompanhamento">
+                <label for="login-senha">
+                    🔒 Senha
+                </label>
 
-        <div class="filtros">
-          <button class="filtro-btn ativo" onclick="filtrarPedidos('todos',this)">Todos</button>
-          <button class="filtro-btn" onclick="filtrarPedidos('aguardando',this)">⏳ Aguardando</button>
-          <button class="filtro-btn" onclick="filtrarPedidos('preparo',this)">🔥 Em Preparo</button>
-          <button class="filtro-btn" onclick="filtrarPedidos('pronto',this)">✅ Pronto</button>
-          <button class="filtro-btn" onclick="filtrarPedidos('cancelado',this)">❌ Cancelado</button>
-        </div>
+                <input
+                    type="password"
+                    id="login-senha"
+                    class="input"
+                    placeholder="Digite sua senha"
+                    autocomplete="current-password">
 
-        <div id="lista-pedidos">
-          <div class="empty">
-            <div class="empty-icon">📋</div>
-            <div class="empty-msg">Nenhum pedido ainda.</div>
-          </div>
-        </div>
+            </div>
 
-      </div>
 
-      <div class="tela" id="tela-cardapio">
+            <button
+                class="btn-login"
+                onclick="fazerLogin()">
 
-        <div class="secao-header">
-          <div class="secao-titulo">Cardápio</div>
+                Entrar
 
-          <button class="btn-sm" onclick="abrirModalProduto()">
-            + Produto
-          </button>
-        </div>
-
-        <div id="lista-produtos-admin"></div>
-
-      </div>
-
-      <div class="tela" id="tela-clientes">
-
-        <div class="secao-header">
-          <div class="secao-titulo">Clientes</div>
-
-          <button class="btn-sm" onclick="abrirModalCliente()">
-            + Cliente
-          </button>
-        </div>
-
-        <input
-          class="input"
-          type="search"
-          id="busca-cliente"
-          placeholder="🔍 Buscar cliente…"
-          oninput="buscarCliente(this.value)"
-        />
-
-        <div id="lista-clientes"></div>
-
-      </div>
-
-      <div class="tela" id="tela-relatorios">
-
-        <div class="secao-titulo secao-titulo-sm">
-          📊 Relatórios
-        </div>
-
-        <label class="label">Período</label>
-
-        <select
-          class="input"
-          id="rel-periodo"
-          onchange="carregarRelatorio()"
-          title="Escolha o período do relatório"
-        >
-          <option value="hoje">Hoje</option>
-          <option value="semana">Esta Semana</option>
-          <option value="mes">Este Mês</option>
-        </select>
-
-        <div class="stats-grid">
-
-          <div class="stat-card">
-            <div class="stat-valor" id="rel-total-pedidos">—</div>
-            <div class="stat-label">Pedidos</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-valor" id="rel-receita">—</div>
-            <div class="stat-label">Receita (R$)</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-valor" id="rel-ticket">—</div>
-            <div class="stat-label">Ticket Médio</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-valor" id="rel-cancelados">—</div>
-            <div class="stat-label">Cancelados</div>
-          </div>
+            </button>
 
         </div>
 
-        <div class="card">
 
-          <div class="secao-titulo secao-titulo-xs">
-            🏆 Mais Vendidos
-          </div>
+        <!-- ====================================================
+             LOGIN DO CLIENTE
+             ==================================================== -->
 
-          <div id="rel-mais-vendidos"></div>
+        <div id="form-login-cliente" style="display:none;">
 
-        </div>
+            <div class="campo-login">
 
-      </div>
+                <label for="cliente-login-nome">
+                    👤 Nome
+                </label>
 
-      <div class="tela" id="tela-config">
+                <input
+                    type="text"
+                    id="cliente-login-nome"
+                    class="input"
+                    placeholder="Digite seu nome"
+                    autocomplete="given-name">
 
-        <div class="secao-titulo secao-titulo-sm">
-          ⚙️ Configurações
-        </div>
+            </div>
 
-        <div class="card">
 
-          <div class="info-label">Usuário</div>
-          <div class="info-value" id="cfg-email">—</div>
-          <div class="info-subtitle" id="cfg-perfil">—</div>
+            <div class="campo-login">
 
-        </div>
+                <label for="cliente-login-sobrenome">
+                    👤 Sobrenome
+                </label>
 
-        <div class="card">
+                <input
+                    type="text"
+                    id="cliente-login-sobrenome"
+                    class="input"
+                    placeholder="Digite seu sobrenome"
+                    autocomplete="family-name">
 
-          <div class="info-label-lg">Loja</div>
+            </div>
 
-          <div class="toggle-wrap">
 
-            <span class="toggle-label">
-              🌐 Sincronização ativa
-            </span>
+            <div class="campo-login">
 
-            <label class="toggle" title="Status de sincronização">
+                <label for="cliente-login-telefone">
+                    📱 Telefone
+                </label>
 
-              <input
-                type="checkbox"
-                checked
-                disabled
-                aria-label="Sincronização de dados"
-              />
+                <input
+                    type="tel"
+                    id="cliente-login-telefone"
+                    class="input"
+                    placeholder="(00) 00000-0000"
+                    autocomplete="tel">
 
-              <span class="toggle-slider"></span>
+            </div>
 
-            </label>
 
-          </div>
+            <button
+                class="btn-login"
+                onclick="entrarComoCliente()">
 
-        </div>
+                Entrar como Cliente
 
-        <div class="card" id="card-popular-produtos" style="display:none;">
-
-          <div class="info-label-lg">⚡ Funções Admin</div>
-
-          <button
-            class="btn-sm"
-            onclick="popularProdutosComDados()"
-            style="width:100%;margin-bottom:12px;"
-          >
-            📥 Popular 40+ Produtos
-          </button>
-
-          <button
-            class="btn-sm"
-            onclick="definirDestaquesPadrao()"
-            style="width:100%;margin-bottom:12px;background:var(--laranja);color:#fff;"
-          >
-            ⭐ Definir Mais Pedidos e Promoções Padrão
-          </button>
-
-          <div style="font-size:0.75rem;color:var(--texto-2);">
-            Marca automaticamente os produtos mais vendidos e ativa as seções de destaque no cardápio.
-          </div>
+            </button>
 
         </div>
 
-        <button
-          class="btn-primario btn-logout"
-          onclick="fazerLogout()"
-        >
-          🚪 Sair da conta
-        </button>
 
-      </div>
-
-    </div>
-
-    <div
-      class="carrinho-bar"
-      id="carrinho-bar"
-      onclick="abrirModalCarrinho()"
-    >
-
-      <div>
-        <div class="carrinho-titulo">🛒 Ver pedido</div>
-        <div class="carrinho-info" id="carrinho-qtd">0 itens</div>
-      </div>
-
-      <div class="carrinho-total" id="carrinho-total-bar">
-        R$ 0,00
-      </div>
-
-    </div>
-
-    <nav class="navbar">
-
-      <button
-        class="nav-item ativo"
-        id="nav-pedido"
-        onclick="mudarTela('pedido','Novo Pedido',this)"
-      >
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 4v16m8-8H4"/>
-        </svg>
-        Pedido
-      </button>
-
-      <button
-        class="nav-item"
-        id="nav-acompanhamento"
-        onclick="mudarTela('acompanhamento','Pedidos',this)"
-      >
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-        </svg>
-        Pedidos
-      </button>
-
-      <button
-        class="nav-item"
-        id="nav-cardapio"
-        onclick="mudarTela('cardapio','Cardápio',this)"
-      >
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-        </svg>
-        Cardápio
-      </button>
-
-      <button
-        class="nav-item"
-        id="nav-clientes"
-        onclick="mudarTela('clientes','Clientes',this)"
-      >
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87M12 12a4 4 0 100-8 4 4 0 000 8z"/>
-        </svg>
-        Clientes
-      </button>
-
-      <button
-        class="nav-item"
-        id="nav-relatorios"
-        onclick="mudarTela('relatorios','Relatórios',this)"
-      >
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-        </svg>
-        Relatórios
-      </button>
-
-      <button
-        class="nav-item"
-        id="nav-config"
-        onclick="mudarTela('config','Configurações',this)"
-      >
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 001.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543-.826-2.37 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        Config
-      </button>
-
-    </nav>
-
-  </div>
-
-  <div class="modal-overlay" id="modal-adicionais">
-
-    <div class="modal">
-
-      <div class="modal-titulo" id="modal-adicionais-titulo">
-        Adicionais
-      </div>
-
-      <div style="padding:12px 0;border-bottom:1px solid var(--borda);margin-bottom:16px;">
+        <!-- ====================================================
+             ERRO DE LOGIN
+             ==================================================== -->
 
         <div
-          style="font-weight:600;margin-bottom:4px;"
-          id="modal-adicionais-produto"
-        >
-          Produto
+            id="erro-login"
+            class="erro-login"
+            style="display:none;">
         </div>
-
-        <div
-          style="color:var(--laranja);font-size:1.1rem;font-weight:700;"
-          id="modal-adicionais-preco"
-        >
-          R$ 0,00
-        </div>
-
-      </div>
-
-      <div
-        id="modal-adicionais-lista"
-        style="margin-bottom:16px;"
-      ></div>
-
-      <div class="divider"></div>
-
-      <label class="label">📝 Observações do Produto</label>
-
-      <textarea
-        class="input"
-        id="modal-adicionais-obs"
-        placeholder="Ex: Sem cebola, molho à parte..."
-        style="margin-bottom:16px;"
-      ></textarea>
-
-      <button
-        class="btn-primario"
-        onclick="adicionarAoCarrinhoComAdicionais()"
-      >
-        ✅ Adicionar ao Carrinho
-      </button>
-
-      <br><br>
-
-      <button
-        class="btn-secundario"
-        onclick="fecharModal('modal-adicionais')"
-      >
-        Cancelar
-      </button>
 
     </div>
 
-  </div>
+</div>
 
-  <div class="modal-overlay" id="modal-carrinho">
 
-    <div class="modal">
+<!-- ============================================================
+     APLICAÇÃO PRINCIPAL
+     ============================================================ -->
 
-      <div class="modal-titulo">
-        🛒 Confirmar Pedido
-      </div>
+<div id="app" style="display:none;">
 
-      <div id="modal-carrinho-itens"></div>
+    <!-- ========================================================
+         SIDEBAR
+         ======================================================== -->
 
-      <div class="divider"></div>
+    <aside id="sidebar" class="sidebar">
 
-      <div class="modal-total-row">
-        <span class="modal-total-label">Total</span>
-        <span class="modal-total-valor" id="modal-total">R$ 0,00</span>
-      </div>
+        <div class="sidebar-logo">
 
-      <button
-        class="btn-primario"
-        onclick="confirmarPedido()"
-      >
-        ✅ Enviar Pedido →
-      </button>
+            <div class="logo-circulo pequeno">
+                🍹
+            </div>
 
-      <br><br>
+            <div>
+                <strong>Batidão</strong>
+                <small>Sistema de Pedidos</small>
+            </div>
 
-      <button
-        class="btn-secundario"
-        onclick="fecharModal('modal-carrinho')"
-      >
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-  <div class="modal-overlay" id="modal-produto">
-
-    <div class="modal">
-
-      <div class="modal-titulo" id="modal-produto-titulo">
-        + Novo Produto
-      </div>
-
-      <input type="hidden" id="prod-id" />
-
-      <label class="label">Nome do Produto</label>
-
-      <input
-        class="input"
-        type="text"
-        id="prod-nome"
-        placeholder="Ex: Suco de Laranja"
-      />
-
-      <label class="label">Categoria</label>
-
-      <input
-        class="input"
-        type="text"
-        id="prod-categoria"
-        placeholder="Ex: Sucos, Lanches, Adicionais…"
-      />
-
-      <label class="label">Preço (R$)</label>
-
-      <input
-        class="input"
-        type="number"
-        id="prod-preco"
-        step="0.01"
-        min="0"
-        placeholder="0,00"
-      />
-
-      <label class="label">Descrição (opcional)</label>
-
-      <input
-        class="input"
-        type="text"
-        id="prod-desc"
-        placeholder="Ex: 500ml, natural, sem conservantes"
-      />
-
-      <label class="label">📸 Foto do Produto</label>
-
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-
-        <div
-          id="prod-img-preview"
-          style="width:72px;height:72px;border-radius:10px;background:var(--verde-bg);border:2px dashed var(--borda);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0"
-        >
-          🖼️
         </div>
 
-        <div style="flex:1">
 
-          <label
-            style="display:block;width:100%;padding:10px;background:var(--laranja);color:#fff;border-radius:var(--raio-sm);text-align:center;font-weight:600;font-size:0.9rem;cursor:pointer"
-          >
-            📂 Escolher Foto
+        <!-- ====================================================
+             PERFIL ATUAL
+             ==================================================== -->
+
+        <div class="perfil-sidebar">
+
+            <div class="perfil-avatar">
+                👤
+            </div>
+
+            <div class="perfil-info">
+
+                <strong id="nome-usuario">
+                    Usuário
+                </strong>
+
+                <span id="perfil-usuario">
+                    Atendente
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================================
+             MENU DE NAVEGAÇÃO
+             ==================================================== -->
+
+        <nav class="sidebar-nav">
+
+            <button
+                class="nav-item active"
+                id="nav-pedido"
+                onclick="mudarTela('pedido', this)">
+
+                <span class="nav-icon">📝</span>
+
+                <span>Novo Pedido</span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                id="nav-acompanhamento"
+                onclick="mudarTela('acompanhamento', this)">
+
+                <span class="nav-icon">📋</span>
+
+                <span>Pedidos</span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                id="nav-cardapio"
+                onclick="mudarTela('cardapio', this)">
+
+                <span class="nav-icon">🍹</span>
+
+                <span>Cardápio</span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                id="nav-clientes"
+                onclick="mudarTela('clientes', this)">
+
+                <span class="nav-icon">👥</span>
+
+                <span>Clientes</span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                id="nav-relatorios"
+                onclick="mudarTela('relatorios', this)">
+
+                <span class="nav-icon">📊</span>
+
+                <span>Relatórios</span>
+
+            </button>
+
+
+            <button
+                class="nav-item"
+                id="nav-config"
+                onclick="mudarTela('config', this)">
+
+                <span class="nav-icon">⚙️</span>
+
+                <span>Configurações</span>
+
+            </button>
+
+        </nav>
+
+
+        <!-- ====================================================
+             LOGOUT
+             ==================================================== -->
+
+        <div class="sidebar-footer">
+
+            <button
+                class="nav-item logout-btn"
+                onclick="fazerLogout()">
+
+                <span class="nav-icon">🚪</span>
+
+                <span>Sair</span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ========================================================
+         CONTEÚDO PRINCIPAL
+         ======================================================== -->
+
+    <main class="main-content">
+
+        <!-- ====================================================
+             HEADER
+             ==================================================== -->
+
+        <header class="top-header">
+
+            <button
+                class="menu-mobile"
+                onclick="toggleSidebar()">
+
+                ☰
+
+            </button>
+
+
+            <div class="header-title">
+
+                <h2 id="titulo-tela">
+                    Novo Pedido
+                </h2>
+
+                <p id="subtitulo-tela">
+                    Registre um novo pedido
+                </p>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <span
+                    id="badge-perfil"
+                    class="badge-perfil">
+
+                    Atendente
+
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <!-- ====================================================
+             ÁREA DAS TELAS
+             ==================================================== -->
+
+        <div class="conteudo-app">
+
+
+            <!-- ==================================================
+                 TELA: NOVO PEDIDO
+                 ================================================== -->
+
+            <section
+                id="tela-pedido"
+                class="tela-app ativa">
+
+                <div class="pedido-layout">
+
+
+                    <!-- ==========================================
+                         CARD DO PEDIDO
+                         ========================================== -->
+
+                    <div class="card-app pedido-principal">
+
+                        <div class="card-header-app">
+
+                            <div>
+
+                                <h3>
+                                    📝 Novo Pedido
+                                </h3>
+
+                                <p>
+                                    Preencha os dados do cliente
+                                    e escolha os produtos.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ======================================
+                             DADOS DO PEDIDO
+                             ====================================== -->
+
+                        <div class="form-grid">
+
+
+                            <!-- CLIENTE -->
+
+                            <div class="form-group">
+
+                                <label class="label">
+                                    👤 Cliente
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="np-cliente"
+                                    class="input"
+                                    placeholder="Nome do cliente">
+
+                            </div>
+
+
+                            <!-- MESA -->
+
+                            <div
+                                class="form-group"
+                                id="campo-mesa">
+
+                                <label class="label">
+                                    🪑 Mesa
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="np-mesa"
+                                    class="input"
+                                    placeholder="Número da mesa">
+
+                            </div>
+
+
+                            <!-- ENDEREÇO DE ENTREGA -->
+
+                            <div
+                                class="form-group"
+                                id="campo-endereco-entrega"
+                                style="display:none;">
+
+                                <label class="label">
+                                    📍 Endereço de Entrega
+                                </label>
+
+                                <textarea
+                                    class="input"
+                                    id="np-endereco"
+                                    placeholder="Rua, número, bairro, complemento e referência"></textarea>
+
+                                <div
+                                    style="
+                                    font-size:0.72rem;
+                                    color:var(--texto-2);
+                                    margin:-8px 0 14px;
+                                    ">
+
+                                    Informe o endereço completo para a entrega.
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PAGAMENTO -->
+
+                            <div class="form-group">
+
+                                <label class="label">
+                                    💳 Pagamento
+                                </label>
+
+                                <select
+                                    id="np-pagamento"
+                                    class="input"
+                                    onchange="alterarPagamento()">
+
+                                    <option value="">
+                                        Selecione
+                                    </option>
+
+                                    <option value="Dinheiro">
+                                        💵 Dinheiro
+                                    </option>
+
+                                    <option value="Pix">
+                                        📱 Pix
+                                    </option>
+
+                                    <option value="Cartão">
+                                        💳 Cartão
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- TIPO DE CARTÃO -->
+
+                            <div
+                                class="form-group"
+                                id="campo-tipo-cartao"
+                                style="display:none;">
+
+                                <label class="label">
+                                    💳 Tipo de Cartão
+                                </label>
+
+                                <select
+                                    id="np-tipo-cartao"
+                                    class="input">
+
+                                    <option value="">
+                                        Selecione
+                                    </option>
+
+                                    <option value="Débito">
+                                        Débito
+                                    </option>
+
+                                    <option value="Crédito">
+                                        Crédito
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ======================================
+                             OBSERVAÇÕES
+                             ====================================== -->
+
+                        <div class="form-group">
+
+                            <label class="label">
+                                📝 Observações
+                            </label>
+
+                            <textarea
+                                id="np-obs"
+                                class="input"
+                                placeholder="Alguma observação sobre o pedido?"></textarea>
+
+                        </div>
+
+
+                        <!-- ======================================
+                             CARDÁPIO
+                             ====================================== -->
+
+                        <div class="cardapio-section">
+
+                            <div class="section-title">
+
+                                <h3>
+                                    🍹 Cardápio
+                                </h3>
+
+                                <div class="busca-produto">
+
+                                    <input
+                                        type="text"
+                                        id="busca-produto"
+                                        class="input"
+                                        placeholder="🔎 Buscar produto..."
+                                        oninput="filtrarProdutos()">
+
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                id="categorias-produtos"
+                                class="categorias-produtos">
+                            </div>
+
+
+                            <div
+                                id="lista-produtos"
+                                class="lista-produtos">
+
+                                <!-- Produtos carregados pelo Firebase -->
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ==========================================
+                         RESUMO DO PEDIDO
+                         ========================================== -->
+
+                    <div class="card-app resumo-pedido">
+
+                        <div class="card-header-app">
+
+                            <div>
+
+                                <h3>
+                                    🛒 Seu Pedido
+                                </h3>
+
+                                <p>
+                                    Itens selecionados
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="lista-itens-pedido"
+                            class="lista-itens-pedido">
+
+                            <div class="pedido-vazio">
+
+                                <div class="pedido-vazio-icon">
+                                    🛒
+                                </div>
+
+                                <p>
+                                    Nenhum item adicionado
+                                </p>
+
+                                <small>
+                                    Escolha produtos do cardápio
+                                </small>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="resumo-total">
+
+                            <span>
+                                Total
+                            </span>
+
+                            <strong id="valor-total">
+                                R$ 0,00
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            class="btn-principal btn-confirmar"
+                            onclick="confirmarPedido()">
+
+                            <span>✅</span>
+
+                            Confirmar Pedido
+
+                        </button>
+
+
+                        <button
+                            class="btn-secundario"
+                            onclick="limparFormularioPedido()">
+
+                            🗑️ Limpar Pedido
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+                      <!-- ==================================================
+                 TELA: ACOMPANHAMENTO DE PEDIDOS
+                 ================================================== -->
+
+            <section
+                id="tela-acompanhamento"
+                class="tela-app">
+
+                <div class="card-app">
+
+                    <div class="card-header-app">
+
+                        <div>
+
+                            <h3>
+                                📋 Pedidos
+                            </h3>
+
+                            <p>
+                                Acompanhe os pedidos realizados.
+                            </p>
+
+                        </div>
+
+                        <button
+                            class="btn-secundario"
+                            onclick="escutarPedidos()">
+
+                            🔄 Atualizar
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="lista-pedidos"
+                        class="lista-pedidos">
+
+                        <div class="pedido-vazio">
+
+                            <div class="pedido-vazio-icon">
+                                📋
+                            </div>
+
+                            <p>
+                                Carregando pedidos...
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 TELA: CARDÁPIO
+                 ================================================== -->
+
+            <section
+                id="tela-cardapio"
+                class="tela-app">
+
+                <div class="card-app">
+
+                    <div class="card-header-app">
+
+                        <div>
+
+                            <h3>
+                                🍹 Cardápio
+                            </h3>
+
+                            <p>
+                                Gerencie os produtos disponíveis.
+                            </p>
+
+                        </div>
+
+                        <button
+                            class="btn-principal"
+                            onclick="abrirModalProduto()">
+
+                            ➕ Novo Produto
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="lista-cardapio-admin"
+                        class="lista-cardapio-admin">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 TELA: CLIENTES
+                 ================================================== -->
+
+            <section
+                id="tela-clientes"
+                class="tela-app">
+
+                <div class="card-app">
+
+                    <div class="card-header-app">
+
+                        <div>
+
+                            <h3>
+                                👥 Clientes
+                            </h3>
+
+                            <p>
+                                Clientes cadastrados no sistema.
+                            </p>
+
+                        </div>
+
+                        <button
+                            class="btn-principal"
+                            onclick="abrirModalCliente()">
+
+                            ➕ Novo Cliente
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        class="busca-clientes">
+
+                        <input
+                            type="text"
+                            id="busca-clientes"
+                            class="input"
+                            placeholder="🔎 Buscar cliente..."
+                            oninput="filtrarClientes()">
+
+                    </div>
+
+
+                    <div
+                        id="lista-clientes"
+                        class="lista-clientes">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 TELA: RELATÓRIOS
+                 ================================================== -->
+
+            <section
+                id="tela-relatorios"
+                class="tela-app">
+
+                <div class="card-app">
+
+                    <div class="card-header-app">
+
+                        <div>
+
+                            <h3>
+                                📊 Relatórios
+                            </h3>
+
+                            <p>
+                                Resumo dos pedidos realizados.
+                            </p>
+
+                        </div>
+
+                        <button
+                            class="btn-secundario"
+                            onclick="gerarRelatorio()">
+
+                            🔄 Atualizar
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="relatorio-conteudo"
+                        class="relatorio-conteudo">
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================================
+                 TELA: CONFIGURAÇÕES
+                 ================================================== -->
+
+            <section
+                id="tela-config"
+                class="tela-app">
+
+                <div class="card-app">
+
+                    <div class="card-header-app">
+
+                        <div>
+
+                            <h3>
+                                ⚙️ Configurações
+                            </h3>
+
+                            <p>
+                                Configurações do sistema.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="configuracoes">
+
+                        <div class="config-item">
+
+                            <div>
+
+                                <strong>
+                                    Perfil atual
+                                </strong>
+
+                                <p id="config-perfil">
+                                    -
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="config-item">
+
+                            <div>
+
+                                <strong>
+                                    Usuário
+                                </strong>
+
+                                <p id="config-usuario">
+                                    -
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="config-item">
+
+                            <div>
+
+                                <strong>
+                                    Sistema
+                                </strong>
+
+                                <p>
+                                    Batidão – Sistema de Pedidos
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            class="btn-secundario"
+                            onclick="fazerLogout()">
+
+                            🚪 Sair do sistema
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL — PRODUTO
+     ============================================================ -->
+
+<div
+    class="modal-overlay"
+    id="modal-produto"
+    style="display:none;">
+
+    <div class="modal-app">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h3 id="modal-produto-titulo">
+                    ➕ Novo Produto
+                </h3>
+
+            </div>
+
+            <button
+                class="modal-fechar"
+                onclick="fecharModal('modal-produto')">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
 
             <input
-              type="file"
-              id="prod-imagem-file"
-              accept="image/*"
-              style="display:none"
-              onchange="previewImagemProduto(this)"
-            />
+                type="hidden"
+                id="produto-id">
 
-          </label>
 
-          <div
-            style="font-size:0.7rem;color:var(--texto-2);margin-top:4px;text-align:center"
-          >
-            JPG, PNG ou WEBP
-          </div>
+            <label class="label">
+                Nome do produto
+            </label>
+
+            <input
+                class="input"
+                type="text"
+                id="produto-nome"
+                placeholder="Ex.: Suco de laranja">
+
+
+            <label class="label">
+                Categoria
+            </label>
+
+            <select
+                class="input"
+                id="produto-categoria">
+
+                <option value="">
+                    Selecione uma categoria
+                </option>
+
+                <option value="Sucos">
+                    Sucos
+                </option>
+
+                <option value="Vitaminas">
+                    Vitaminas
+                </option>
+
+                <option value="Açaí">
+                    Açaí
+                </option>
+
+                <option value="Lanches">
+                    Lanches
+                </option>
+
+                <option value="Outros">
+                    Outros
+                </option>
+
+            </select>
+
+
+            <label class="label">
+                Preço
+            </label>
+
+            <input
+                class="input"
+                type="number"
+                id="produto-preco"
+                placeholder="0,00"
+                step="0.01"
+                min="0">
+
+
+            <label class="label">
+                Descrição
+            </label>
+
+            <textarea
+                class="input"
+                id="produto-descricao"
+                placeholder="Descrição do produto"></textarea>
+
+
+            <label class="label">
+                URL da imagem
+            </label>
+
+            <input
+                class="input"
+                type="text"
+                id="produto-imagem"
+                placeholder="img/produto.jpg">
 
         </div>
 
-      </div>
 
-      <input type="hidden" id="prod-imagem" />
+        <div class="modal-footer">
 
-      <details style="margin-bottom:12px">
+            <button
+                class="btn-secundario"
+                onclick="fecharModal('modal-produto')">
 
-        <summary
-          style="font-size:0.75rem;color:var(--texto-2);cursor:pointer;user-select:none"
-        >
-          Ou digitar nome do arquivo manualmente (pasta img/)
-        </summary>
+                Cancelar
 
-        <input
-          class="input"
-          type="text"
-          id="prod-imagem-manual"
-          placeholder="Ex: linguica.jpg"
-          oninput="previewImagemManual(this.value)"
-          style="margin-top:6px"
-        />
+            </button>
 
-        <div
-          style="font-size:0.7rem;color:var(--texto-2);margin-top:4px"
-        >
-          Coloque o arquivo dentro da pasta <strong>img/</strong> ao lado do index.html
+            <button
+                class="btn-principal"
+                onclick="salvarProduto()">
+
+                💾 Salvar
+
+            </button>
+
         </div>
 
-      </details>
+    </div>
 
-      <div style="display:flex;gap:16px;margin-bottom:14px">
+</div>
 
-        <label
-          style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500"
-        >
-          <input
-            type="checkbox"
-            id="prod-mais-vendido"
-            style="width:18px;height:18px;accent-color:var(--laranja)"
-          />
-          ⭐ Mais Pedido
-        </label>
 
-        <label
-          style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500"
-        >
-          <input
-            type="checkbox"
-            id="prod-promocao"
-            style="width:18px;height:18px;accent-color:var(--vermelho)"
-          />
-          🔥 Promoção
-        </label>
+<!-- ============================================================
+     MODAL — CLIENTE
+     ============================================================ -->
 
-      </div>
+<div
+    class="modal-overlay"
+    id="modal-cliente"
+    style="display:none;">
 
-      <button
-        class="btn-primario"
-        onclick="salvarProduto()"
-      >
-        💾 Salvar Produto
-      </button>
+    <div class="modal-app">
 
-      <br><br>
+        <div class="modal-header">
 
-      <button
-        class="btn-sm"
-        id="btn-gerenciar-adicionais"
-        style="display:none;width:100%;margin-bottom:12px"
-        onclick="abrirModalAdicionaisProduto()"
-      >
-        ⚡ Gerenciar Adicionais
-      </button>
+            <div>
 
-      <br><br>
+                <h3>
+                    👤 Novo Cliente
+                </h3>
 
-      <button
-        class="btn-secundario"
-        onclick="fecharModal('modal-produto')"
-      >
-        Cancelar
-      </button>
+            </div>
+
+            <button
+                class="modal-fechar"
+                onclick="fecharModal('modal-cliente')">
+
+                ✕
+
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <label class="label">
+                Nome
+            </label>
+
+            <input
+                class="input"
+                type="text"
+                id="cli-nome"
+                placeholder="Nome completo">
+
+
+            <label class="label">
+                Telefone
+            </label>
+
+            <input
+                class="input"
+                type="tel"
+                id="cli-tel"
+                placeholder="(19) 99999-9999">
+
+
+            <label class="label">
+                Endereço
+            </label>
+
+            <textarea
+                class="input"
+                id="cli-endereco"
+                placeholder="Endereço do cliente"></textarea>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                class="btn-secundario"
+                onclick="fecharModal('modal-cliente')">
+
+                Cancelar
+
+            </button>
+
+            <button
+                class="btn-principal"
+                onclick="salvarCliente()">
+
+                💾 Salvar Cliente
+
+            </button>
+
+        </div>
 
     </div>
 
-  </div>
+</div>
 
-  <div class="modal-overlay" id="modal-adicionais-gerenciar">
 
-    <div class="modal">
+<!-- ============================================================
+     TOAST
+     ============================================================ -->
 
-      <div class="modal-titulo">
-        ⚡ Adicionais -
-        <span id="modal-adic-prod-nome"></span>
-      </div>
+<div
+    class="toast"
+    id="toast">
+</div>
 
-      <div
-        id="lista-adicionais-produto"
-        style="margin-bottom:16px;"
-      ></div>
+  <!-- ============================================================
+     JAVASCRIPT PRINCIPAL
+     ============================================================ -->
 
-      <button
-        class="btn-sm"
-        onclick="abrirFormAdicional()"
-        style="width:100%;margin-bottom:12px"
-      >
-        + Novo Adicional
-      </button>
+<script src="script.js"></script>
 
-      <div
-        id="form-adicional"
-        style="display:none;background:var(--superficie);padding:12px;border-radius:var(--raio-sm);margin-bottom:12px"
-      >
 
-        <input type="hidden" id="adic-id" />
+<!-- ============================================================
+     SERVICE WORKER / PWA
+     ============================================================ -->
 
-        <label class="label">Nome</label>
+<script>
 
-        <input
-          class="input"
-          type="text"
-          id="adic-nome"
-          placeholder="Ex: Whey Protein"
-          style="margin-bottom:8px"
-        />
+if ('serviceWorker' in navigator) {
 
-        <label class="label">Preço (R$)</label>
+    window.addEventListener('load', function () {
 
-        <input
-          class="input"
-          type="number"
-          id="adic-preco"
-          placeholder="5.00"
-          step="0.01"
-          min="0"
-          style="margin-bottom:8px"
-        />
+        navigator.serviceWorker
+            .register('sw.js')
+            .then(function (registration) {
 
-        <button
-          class="btn-sm"
-          onclick="salvarAdicional()"
-          style="width:100%;margin-bottom:8px"
-        >
-          ✅ Salvar Adicional
-        </button>
+                registration.onupdatefound = function () {
 
-        <button
-          class="btn-sm-vermelho"
-          onclick="cancelarFormAdicional()"
-          style="width:100%"
-        >
-          Cancelar
-        </button>
+                    var installingWorker =
+                        registration.installing;
 
-      </div>
+                    if (!installingWorker) {
+                        return;
+                    }
 
-      <div class="divider"></div>
+                    installingWorker.onstatechange =
+                        function () {
 
-      <button
-        class="btn-primario"
-        onclick="fecharModal('modal-adicionais-gerenciar')"
-      >
-        Pronto
-      </button>
+                            if (
+                                installingWorker.state === 'installed'
+                                &&
+                                navigator.serviceWorker.controller
+                            ) {
 
-    </div>
+                                window.location.reload();
 
-  </div>
+                            }
 
-  <div class="modal-overlay" id="modal-comprovante">
+                        };
 
-    <div class="modal">
+                };
 
-      <div class="modal-titulo">🧾 Comprovante</div>
+            })
+            .catch(function (error) {
 
-      <div id="comprovante-conteudo"></div>
+                console.error(
+                    'Erro ao registrar Service Worker:',
+                    error
+                );
 
-      <button
-        class="btn-primario modal-btn"
-        onclick="fecharModal('modal-comprovante')"
-      >
-        Fechar
-      </button>
+            });
 
-    </div>
+    });
 
-  </div>
+}
 
-  <div class="modal-overlay" id="modal-historico">
+</script>
 
-    <div class="modal">
-
-      <div
-        class="modal-titulo"
-        id="historico-titulo"
-      >
-        Histórico
-      </div>
-
-      <div id="historico-conteudo"></div>
-
-      <button
-        class="btn-secundario modal-btn"
-        onclick="fecharModal('modal-historico')"
-      >
-        Fechar
-      </button>
-
-    </div>
-
-  </div>
-
-  <div class="modal-overlay" id="modal-cliente">
-
-    <div class="modal">
-
-      <div class="modal-titulo">
-        + Novo Cliente
-      </div>
-
-      <label class="label">Nome</label>
-
-      <input
-        class="input"
-        type="text"
-        id="cli-nome"
-        placeholder="Nome completo"
-      />
-
-      <label class="label">Telefone</label>
-
-      <input
-        class="input"
-        type="tel"
-        id="cli-tel"
-        placeholder="(19) 99999-9999"
-      />
-
-      <button
-        class="btn-primario"
-        onclick="salvarCliente()"
-      >
-        💾 Salvar Cliente
-      </button>
-
-      <br><br>
-
-      <button
-        class="btn-secundario"
-        onclick="fecharModal('modal-cliente')"
-      >
-        Cancelar
-      </button>
-
-    </div>
-
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <script src="script.js"></script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-
-        navigator.serviceWorker.register('sw.js').then(function(reg) {
-
-          reg.onupdatefound = function() {
-
-            var installingWorker = reg.installing;
-
-            installingWorker.onstatechange = function() {
-
-              if (
-                installingWorker.state === 'installed' &&
-                navigator.serviceWorker.controller
-              ) {
-                window.location.reload();
-              }
-
-            };
-
-          };
-
-        });
-
-      });
-    }
-  </script>
 
 </body>
 </html>
