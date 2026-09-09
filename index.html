@@ -1,380 +1,179 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Batidão – Sistema de Pedidos</title>
 
-  <!-- ============================================================
-       PWA
-       ============================================================ -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#3a7d2c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Batidão" />
 
-  <meta name="theme-color" content="#3a7d2c">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Batidão">
-
-  <!-- ============================================================
-       FIREBASE
-       ============================================================ -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
-  <!-- ============================================================
-       FONTES
-       ============================================================ -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
-    rel="stylesheet"
-  >
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-  <!-- ============================================================
-       TELA DE CARREGAMENTO
-       ============================================================ -->
   <div id="tela-loading">
-
-    <div class="logo-loading">
-      Batidão
-    </div>
-
+    <div class="logo-loading">Batidão</div>
     <div class="spinner"></div>
-
-    <p class="loading-text">
-      Carregando sistema…
-    </p>
-
+    <p class="loading-text">Carregando sistema…</p>
   </div>
 
-
-  <!-- ============================================================
-       TELA DE LOGIN
-       GERENTE / ATENDENTE / CLIENTE
-       ============================================================ -->
-
   <div id="tela-login" class="tela-login-container">
-
     <div class="card-login">
 
-      <!-- Cabeçalho -->
       <div class="login-header">
-
-        <div class="login-logo">
-          🥤 Batidão
-        </div>
-
-        <div class="login-sub">
-          Sistema de Pedidos
-        </div>
-
+        <div class="login-logo">🥤 Batidão</div>
+        <div class="login-sub">Sistema de Pedidos</div>
       </div>
 
-
-      <!-- ========================================================
-           ABAS DE PERFIL
-           ======================================================== -->
-
       <div class="tabs-perfil">
-
-        <button
-          class="tab-btn ativo"
-          id="tab-gerente"
-          onclick="selecionarPerfil('gerente')"
-          type="button"
-        >
+        <button class="tab-btn ativo" id="tab-gerente"
+                onclick="selecionarPerfil('gerente')">
           👔 Gerente
         </button>
 
-        <button
-          class="tab-btn"
-          id="tab-atendente"
-          onclick="selecionarPerfil('atendente')"
-          type="button"
-        >
+        <button class="tab-btn" id="tab-atendente"
+                onclick="selecionarPerfil('atendente')">
           🧃 Atendente
         </button>
 
-        <button
-          class="tab-btn"
-          id="tab-cliente"
-          onclick="selecionarPerfil('cliente')"
-          type="button"
-        >
+        <button class="tab-btn" id="tab-cliente"
+                onclick="selecionarPerfil('cliente')">
           👤 Cliente
         </button>
-
       </div>
 
-
-      <!-- ========================================================
-           MENSAGEM DE ERRO
-           ======================================================== -->
-
-      <div
-        class="msg-erro"
-        id="erro-login"
-        role="alert"
-      ></div>
-
-
-      <!-- ========================================================
-           LOGIN DO CLIENTE
-           Nome + Sobrenome + Telefone
-           Sem e-mail e sem senha
-           ======================================================== -->
-
-      <div
-        id="form-login-cliente"
-        style="display:none;"
-      >
-
-        <label class="campo-label">
-          Nome
-        </label>
-
-        <div class="campo-wrapper">
-
-          <span class="campo-icone">
-            👤
-          </span>
-
-          <input
-            class="campo-input"
-            type="text"
-            id="cliente-login-nome"
-            placeholder="Seu nome"
-            autocomplete="given-name"
-          >
-
-        </div>
-
-
-        <label class="campo-label">
-          Sobrenome
-        </label>
-
-        <div class="campo-wrapper">
-
-          <span class="campo-icone">
-            👤
-          </span>
-
-          <input
-            class="campo-input"
-            type="text"
-            id="cliente-login-sobrenome"
-            placeholder="Seu sobrenome"
-            autocomplete="family-name"
-          >
-
-        </div>
-
-
-        <label class="campo-label">
-          Telefone
-        </label>
-
-        <div class="campo-wrapper">
-
-          <span class="campo-icone">
-            📱
-          </span>
-
-          <input
-            class="campo-input"
-            type="tel"
-            id="cliente-login-telefone"
-            placeholder="(19) 99999-9999"
-            autocomplete="tel"
-          >
-
-        </div>
-
-
-        <button
-          class="btn-primario"
-          onclick="entrarComoCliente()"
-          type="button"
-        >
-          Entrar como Cliente →
-        </button>
-
-      </div>
-
-
-      <!-- ========================================================
-           LOGIN DO GERENTE / ATENDENTE
-           ======================================================== -->
+      <div class="msg-erro" id="erro-login"></div>
 
       <div id="form-login-funcionario">
 
-        <label class="campo-label">
-          E-mail
-        </label>
+        <label class="campo-label">E-mail</label>
 
         <div class="campo-wrapper">
-
-          <span class="campo-icone">
-            ✉️
-          </span>
-
+          <span class="campo-icone">✉️</span>
           <input
             class="campo-input"
             type="email"
             id="input-email"
             placeholder="seu@email.com"
             autocomplete="email"
-          >
-
+          />
         </div>
 
-
-        <label class="campo-label">
-          Senha
-        </label>
+        <label class="campo-label">Senha</label>
 
         <div class="campo-wrapper">
-
-          <span class="campo-icone">
-            🔒
-          </span>
-
+          <span class="campo-icone">🔒</span>
           <input
             class="campo-input"
             type="password"
             id="input-senha"
             placeholder="••••••••"
             autocomplete="current-password"
-          >
-
+          />
         </div>
 
-
-        <button
-          class="btn-primario"
-          onclick="fazerLogin()"
-          type="button"
-        >
+        <button class="btn-primario" onclick="fazerLogin()">
           Entrar →
         </button>
 
       </div>
 
-    </div>
+      <div id="form-login-cliente" style="display:none;">
 
+        <label class="campo-label">Nome</label>
+
+        <div class="campo-wrapper">
+          <span class="campo-icone">👤</span>
+          <input
+            class="campo-input"
+            type="text"
+            id="cliente-login-nome"
+            placeholder="Seu nome"
+            autocomplete="given-name"
+          />
+        </div>
+
+        <label class="campo-label">Sobrenome</label>
+
+        <div class="campo-wrapper">
+          <span class="campo-icone">👤</span>
+          <input
+            class="campo-input"
+            type="text"
+            id="cliente-login-sobrenome"
+            placeholder="Seu sobrenome"
+            autocomplete="family-name"
+          />
+        </div>
+
+        <label class="campo-label">Telefone</label>
+
+        <div class="campo-wrapper">
+          <span class="campo-icone">📱</span>
+          <input
+            class="campo-input"
+            type="tel"
+            id="cliente-login-telefone"
+            placeholder="(19) 99999-9999"
+            autocomplete="tel"
+          />
+        </div>
+
+        <button class="btn-primario" onclick="entrarComoCliente()">
+          Entrar como Cliente →
+        </button>
+
+      </div>
+
+    </div>
   </div>
 
-
-  <!-- ============================================================
-       APLICAÇÃO PRINCIPAL
-       ============================================================ -->
-
-  <div
-    id="app"
-    class="app-container"
-  >
-
-
-    <!-- ==========================================================
-         BARRA SUPERIOR
-         ========================================================== -->
+  <div id="app" class="app-container">
 
     <div class="topbar">
-
-      <div class="topbar-logo">
-        🥤 Batidão
-      </div>
-
-      <div
-        class="topbar-titulo"
-        id="titulo-tela"
-      >
-        Pedidos
-      </div>
-
-      <div
-        class="badge-perfil"
-        id="badge-perfil"
-      >
-        —
-      </div>
-
+      <div class="topbar-logo">🥤 Batidão</div>
+      <div class="topbar-titulo" id="titulo-tela">Pedidos</div>
+      <div class="badge-perfil" id="badge-perfil">—</div>
     </div>
-
-
-    <!-- ==========================================================
-         CONTEÚDO
-         ========================================================== -->
 
     <div class="conteudo">
 
+      <div class="tela ativa" id="tela-pedido">
 
-      <!-- ========================================================
-           TELA — NOVO PEDIDO
-           ======================================================== -->
-
-      <div
-        class="tela ativa"
-        id="tela-pedido"
-      >
-
-        <!-- Nome do cliente -->
-        <label class="label">
-          👤 Nome do Cliente
-        </label>
-
+        <label class="label">👤 Nome do Cliente</label>
         <input
           class="input"
           type="text"
           id="np-cliente"
           placeholder="Ex: João Silva"
-        >
-
-
-        <!-- ======================================================
-             MESA
-             Somente Gerente / Atendente
-             ====================================================== -->
+        />
 
         <div id="campo-mesa">
-
-          <label class="label">
-            🪑 Mesa / Número
-          </label>
-
+          <label class="label">🪑 Mesa / Número</label>
           <input
             class="input"
             type="text"
             id="np-mesa"
             placeholder="Ex: Mesa 3 ou Balcão"
-          >
-
+          />
         </div>
 
+        <div id="campo-endereco-entrega" style="display:none;">
 
-        <!-- ======================================================
-             ENDEREÇO DE ENTREGA
-             Somente Cliente
-             ====================================================== -->
-
-        <div
-          id="campo-endereco-entrega"
-          style="display:none;"
-        >
-
-          <label class="label">
-            📍 Endereço de Entrega
-          </label>
+          <label class="label">📍 Endereço de Entrega</label>
 
           <textarea
             class="input"
@@ -382,95 +181,41 @@
             placeholder="Rua, número, bairro, complemento e referência"
           ></textarea>
 
-          <div
-            style="
-              font-size:0.72rem;
-              color:var(--texto-2);
-              margin:-8px 0 14px;
-            "
-          >
+          <div style="font-size:0.75rem;color:var(--texto-2);margin-top:-8px;margin-bottom:12px;">
             Informe o endereço completo para a entrega.
           </div>
 
         </div>
 
-
-        <!-- ======================================================
-             PAGAMENTO
-             ====================================================== -->
-
-        <label class="label">
-          💳 Forma de Pagamento
-        </label>
+        <label class="label">💳 Forma de Pagamento</label>
 
         <select
           class="input"
           id="np-pagamento"
           title="Escolha a forma de pagamento"
         >
-
-          <option value="Dinheiro">
-            💵 Dinheiro
-          </option>
-
-          <option value="Pix">
-            📱 Pix
-          </option>
-
-          <option value="Débito">
-            💳 Débito
-          </option>
-
-          <option value="Crédito">
-            💳 Crédito
-          </option>
-
+          <option value="Dinheiro">💵 Dinheiro</option>
+          <option value="Pix">📱 Pix</option>
+          <option value="Débito">💳 Débito</option>
+          <option value="Crédito">💳 Crédito</option>
         </select>
 
-
         <div class="divider"></div>
-
-
-        <!-- ======================================================
-             CARDÁPIO
-             ====================================================== -->
 
         <div class="secao-header">
-
-          <div class="secao-titulo">
-            Cardápio
-          </div>
-
+          <div class="secao-titulo">Cardápio</div>
         </div>
-
 
         <div id="menu-container">
-
           <div class="empty">
-
-            <div class="empty-icon">
-              🔄
-            </div>
-
-            <div class="empty-msg">
-              Carregando cardápio…
-            </div>
-
+            <div class="empty-icon">🔄</div>
+            <div class="empty-msg">Carregando cardápio…</div>
           </div>
-
         </div>
-
 
         <div class="divider"></div>
 
-
-        <!-- ======================================================
-             OBSERVAÇÕES
-             ====================================================== -->
-
-        <label class="label">
-          📝 Observações do Pedido
-        </label>
+        <label class="label">📝 Observações do Pedido</label>
 
         <textarea
           class="input"
@@ -480,138 +225,48 @@
 
       </div>
 
-
-      <!-- ========================================================
-           TELA — ACOMPANHAMENTO
-           Somente equipe
-           ======================================================== -->
-
-      <div
-        class="tela"
-        id="tela-acompanhamento"
-      >
+      <div class="tela" id="tela-acompanhamento">
 
         <div class="filtros">
-
-          <button
-            class="filtro-btn ativo"
-            onclick="filtrarPedidos('todos',this)"
-            type="button"
-          >
-            Todos
-          </button>
-
-          <button
-            class="filtro-btn"
-            onclick="filtrarPedidos('aguardando',this)"
-            type="button"
-          >
-            ⏳ Aguardando
-          </button>
-
-          <button
-            class="filtro-btn"
-            onclick="filtrarPedidos('preparo',this)"
-            type="button"
-          >
-            🔥 Em Preparo
-          </button>
-
-          <button
-            class="filtro-btn"
-            onclick="filtrarPedidos('pronto',this)"
-            type="button"
-          >
-            ✅ Pronto
-          </button>
-
-          <button
-            class="filtro-btn"
-            onclick="filtrarPedidos('cancelado',this)"
-            type="button"
-          >
-            ❌ Cancelado
-          </button>
-
+          <button class="filtro-btn ativo" onclick="filtrarPedidos('todos',this)">Todos</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('aguardando',this)">⏳ Aguardando</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('preparo',this)">🔥 Em Preparo</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('pronto',this)">✅ Pronto</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('cancelado',this)">❌ Cancelado</button>
         </div>
 
-
         <div id="lista-pedidos">
-
           <div class="empty">
-
-            <div class="empty-icon">
-              📋
-            </div>
-
-            <div class="empty-msg">
-              Nenhum pedido ainda.
-            </div>
-
+            <div class="empty-icon">📋</div>
+            <div class="empty-msg">Nenhum pedido ainda.</div>
           </div>
-
         </div>
 
       </div>
 
-
-      <!-- ========================================================
-           TELA — CARDÁPIO ADMIN
-           Gerente
-           ======================================================== -->
-
-      <div
-        class="tela"
-        id="tela-cardapio"
-      >
+      <div class="tela" id="tela-cardapio">
 
         <div class="secao-header">
+          <div class="secao-titulo">Cardápio</div>
 
-          <div class="secao-titulo">
-            Cardápio
-          </div>
-
-          <button
-            class="btn-sm"
-            onclick="abrirModalProduto()"
-            type="button"
-          >
+          <button class="btn-sm" onclick="abrirModalProduto()">
             + Produto
           </button>
-
         </div>
-
 
         <div id="lista-produtos-admin"></div>
 
       </div>
 
-
-      <!-- ========================================================
-           TELA — CLIENTES
-           ======================================================== -->
-
-      <div
-        class="tela"
-        id="tela-clientes"
-      >
+      <div class="tela" id="tela-clientes">
 
         <div class="secao-header">
+          <div class="secao-titulo">Clientes</div>
 
-          <div class="secao-titulo">
-            Clientes
-          </div>
-
-          <button
-            class="btn-sm"
-            onclick="abrirModalCliente()"
-            type="button"
-          >
+          <button class="btn-sm" onclick="abrirModalCliente()">
             + Cliente
           </button>
-
         </div>
-
 
         <input
           class="input"
@@ -619,31 +274,19 @@
           id="busca-cliente"
           placeholder="🔍 Buscar cliente…"
           oninput="buscarCliente(this.value)"
-        >
-
+        />
 
         <div id="lista-clientes"></div>
 
       </div>
 
-
-      <!-- ========================================================
-           TELA — RELATÓRIOS
-           ======================================================== -->
-
-      <div
-        class="tela"
-        id="tela-relatorios"
-      >
+      <div class="tela" id="tela-relatorios">
 
         <div class="secao-titulo secao-titulo-sm">
           📊 Relatórios
         </div>
 
-
-        <label class="label">
-          Período
-        </label>
+        <label class="label">Período</label>
 
         <select
           class="input"
@@ -651,89 +294,34 @@
           onchange="carregarRelatorio()"
           title="Escolha o período do relatório"
         >
-
-          <option value="hoje">
-            Hoje
-          </option>
-
-          <option value="semana">
-            Esta Semana
-          </option>
-
-          <option value="mes">
-            Este Mês
-          </option>
-
+          <option value="hoje">Hoje</option>
+          <option value="semana">Esta Semana</option>
+          <option value="mes">Este Mês</option>
         </select>
-
 
         <div class="stats-grid">
 
           <div class="stat-card">
-
-            <div
-              class="stat-valor"
-              id="rel-total-pedidos"
-            >
-              —
-            </div>
-
-            <div class="stat-label">
-              Pedidos
-            </div>
-
+            <div class="stat-valor" id="rel-total-pedidos">—</div>
+            <div class="stat-label">Pedidos</div>
           </div>
 
-
           <div class="stat-card">
-
-            <div
-              class="stat-valor"
-              id="rel-receita"
-            >
-              —
-            </div>
-
-            <div class="stat-label">
-              Receita (R$)
-            </div>
-
+            <div class="stat-valor" id="rel-receita">—</div>
+            <div class="stat-label">Receita (R$)</div>
           </div>
 
-
           <div class="stat-card">
-
-            <div
-              class="stat-valor"
-              id="rel-ticket"
-            >
-              —
-            </div>
-
-            <div class="stat-label">
-              Ticket Médio
-            </div>
-
+            <div class="stat-valor" id="rel-ticket">—</div>
+            <div class="stat-label">Ticket Médio</div>
           </div>
 
-
           <div class="stat-card">
-
-            <div
-              class="stat-valor"
-              id="rel-cancelados"
-            >
-              —
-            </div>
-
-            <div class="stat-label">
-              Cancelados
-            </div>
-
+            <div class="stat-valor" id="rel-cancelados">—</div>
+            <div class="stat-label">Cancelados</div>
           </div>
 
         </div>
-
 
         <div class="card">
 
@@ -747,49 +335,23 @@
 
       </div>
 
-
-      <!-- ========================================================
-           TELA — CONFIGURAÇÕES
-           ======================================================== -->
-
-      <div
-        class="tela"
-        id="tela-config"
-      >
+      <div class="tela" id="tela-config">
 
         <div class="secao-titulo secao-titulo-sm">
           ⚙️ Configurações
         </div>
 
-
         <div class="card">
 
-          <div class="info-label">
-            Usuário
-          </div>
-
-          <div
-            class="info-value"
-            id="cfg-email"
-          >
-            —
-          </div>
-
-          <div
-            class="info-subtitle"
-            id="cfg-perfil"
-          >
-            —
-          </div>
+          <div class="info-label">Usuário</div>
+          <div class="info-value" id="cfg-email">—</div>
+          <div class="info-subtitle" id="cfg-perfil">—</div>
 
         </div>
 
-
         <div class="card">
 
-          <div class="info-label-lg">
-            Loja
-          </div>
+          <div class="info-label-lg">Loja</div>
 
           <div class="toggle-wrap">
 
@@ -797,17 +359,14 @@
               🌐 Sincronização ativa
             </span>
 
-            <label
-              class="toggle"
-              title="Status de sincronização"
-            >
+            <label class="toggle" title="Status de sincronização">
 
               <input
                 type="checkbox"
                 checked
                 disabled
                 aria-label="Sincronização de dados"
-              >
+              />
 
               <span class="toggle-slider"></span>
 
@@ -817,64 +376,35 @@
 
         </div>
 
+        <div class="card" id="card-popular-produtos" style="display:none;">
 
-        <!-- ======================================================
-             FUNÇÕES DO GERENTE
-             ====================================================== -->
-
-        <div
-          class="card"
-          id="card-popular-produtos"
-          style="display:none;"
-        >
-
-          <div class="info-label-lg">
-            ⚡ Funções Admin
-          </div>
-
+          <div class="info-label-lg">⚡ Funções Admin</div>
 
           <button
             class="btn-sm"
             onclick="popularProdutosComDados()"
-            type="button"
             style="width:100%;margin-bottom:12px;"
           >
             📥 Popular 40+ Produtos
           </button>
 
-
           <button
             class="btn-sm"
             onclick="definirDestaquesPadrao()"
-            type="button"
-            style="
-              width:100%;
-              margin-bottom:12px;
-              background:var(--laranja);
-              color:#fff;
-            "
+            style="width:100%;margin-bottom:12px;background:var(--laranja);color:#fff;"
           >
             ⭐ Definir Mais Pedidos e Promoções Padrão
           </button>
 
-
-          <div
-            style="
-              font-size:0.75rem;
-              color:var(--texto-2);
-            "
-          >
+          <div style="font-size:0.75rem;color:var(--texto-2);">
             Marca automaticamente os produtos mais vendidos e ativa as seções de destaque no cardápio.
           </div>
 
         </div>
 
-
-        <!-- Logout -->
         <button
           class="btn-primario btn-logout"
           onclick="fazerLogout()"
-          type="button"
         >
           🚪 Sair da conta
         </button>
@@ -883,11 +413,6 @@
 
     </div>
 
-
-    <!-- ============================================================
-         BARRA DO CARRINHO
-         ============================================================ -->
-
     <div
       class="carrinho-bar"
       id="carrinho-bar"
@@ -895,241 +420,105 @@
     >
 
       <div>
-
-        <div class="carrinho-titulo">
-          🛒 Ver pedido
-        </div>
-
-        <div
-          class="carrinho-info"
-          id="carrinho-qtd"
-        >
-          0 itens
-        </div>
-
+        <div class="carrinho-titulo">🛒 Ver pedido</div>
+        <div class="carrinho-info" id="carrinho-qtd">0 itens</div>
       </div>
 
-
-      <div
-        class="carrinho-total"
-        id="carrinho-total-bar"
-      >
+      <div class="carrinho-total" id="carrinho-total-bar">
         R$ 0,00
       </div>
 
     </div>
 
-
-    <!-- ============================================================
-         NAVEGAÇÃO INFERIOR
-         ============================================================ -->
-
     <nav class="navbar">
 
-      <!-- Pedido -->
       <button
         class="nav-item ativo"
         id="nav-pedido"
         onclick="mudarTela('pedido','Novo Pedido',this)"
-        type="button"
       >
-
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 4v16m8-8H4"
-          />
-
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 4v16m8-8H4"/>
         </svg>
-
         Pedido
-
       </button>
 
-
-      <!-- Acompanhamento -->
       <button
         class="nav-item"
         id="nav-acompanhamento"
         onclick="mudarTela('acompanhamento','Pedidos',this)"
-        type="button"
       >
-
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-          />
-
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
         </svg>
-
         Pedidos
-
       </button>
 
-
-      <!-- Cardápio -->
       <button
         class="nav-item"
         id="nav-cardapio"
         onclick="mudarTela('cardapio','Cardápio',this)"
-        type="button"
       >
-
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M4 6h16M4 10h16M4 14h16M4 18h16"
-          />
-
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
         </svg>
-
         Cardápio
-
       </button>
 
-
-      <!-- Clientes -->
       <button
         class="nav-item"
         id="nav-clientes"
         onclick="mudarTela('clientes','Clientes',this)"
-        type="button"
       >
-
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 005-3.87M12 12a4 4 0 100-8 4 4 0 000 8z"
-          />
-
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87M12 12a4 4 0 100-8 4 4 0 000 8z"/>
         </svg>
-
         Clientes
-
       </button>
 
-
-      <!-- Relatórios -->
       <button
         class="nav-item"
         id="nav-relatorios"
         onclick="mudarTela('relatorios','Relatórios',this)"
-        type="button"
       >
-
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M9 19v-6a2 2 0 01-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-          />
-
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
         </svg>
-
         Relatórios
-
       </button>
 
-
-      <!-- Config -->
       <button
         class="nav-item"
         id="nav-config"
         onclick="mudarTela('config','Configurações',this)"
-        type="button"
       >
-
-        <svg
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-        >
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 001.066 2.573c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 010 3.35 1.724 1.724 0 00-1.065 2.573c.94 1.543-.826 3.31 2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.065c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.573c.94-1.543-.826-3.31-2.37-2.37a1.724 1.724 0 000-3.35 1.724 1.724 0 001.065-2.572c-.94-1.544.826-3.31 2.37-2.37a1.724 1.724 0 002.573-1.066z"
-          />
-
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 001.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543-.826-2.37 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-
         Config
-
       </button>
 
     </nav>
 
   </div>
 
-
-  <!-- ============================================================
-       MODAL — ADICIONAIS
-       ============================================================ -->
-
-  <div
-    class="modal-overlay"
-    id="modal-adicionais"
-  >
+  <div class="modal-overlay" id="modal-adicionais">
 
     <div class="modal">
 
-      <div
-        class="modal-titulo"
-        id="modal-adicionais-titulo"
-      >
+      <div class="modal-titulo" id="modal-adicionais-titulo">
         Adicionais
       </div>
 
-
-      <div
-        style="
-          padding:12px 0;
-          border-bottom:1px solid var(--borda);
-          margin-bottom:16px;
-        "
-      >
+      <div style="padding:12px 0;border-bottom:1px solid var(--borda);margin-bottom:16px;">
 
         <div
           style="font-weight:600;margin-bottom:4px;"
@@ -1139,11 +528,7 @@
         </div>
 
         <div
-          style="
-            color:var(--laranja);
-            font-size:1.1rem;
-            font-weight:700;
-          "
+          style="color:var(--laranja);font-size:1.1rem;font-weight:700;"
           id="modal-adicionais-preco"
         >
           R$ 0,00
@@ -1151,19 +536,14 @@
 
       </div>
 
-
       <div
         id="modal-adicionais-lista"
         style="margin-bottom:16px;"
       ></div>
 
-
       <div class="divider"></div>
 
-
-      <label class="label">
-        📝 Observações do Produto
-      </label>
+      <label class="label">📝 Observações do Produto</label>
 
       <textarea
         class="input"
@@ -1172,11 +552,9 @@
         style="margin-bottom:16px;"
       ></textarea>
 
-
       <button
         class="btn-primario"
         onclick="adicionarAoCarrinhoComAdicionais()"
-        type="button"
       >
         ✅ Adicionar ao Carrinho
       </button>
@@ -1186,7 +564,6 @@
       <button
         class="btn-secundario"
         onclick="fecharModal('modal-adicionais')"
-        type="button"
       >
         Cancelar
       </button>
@@ -1195,15 +572,7 @@
 
   </div>
 
-
-  <!-- ============================================================
-       MODAL — CARRINHO
-       ============================================================ -->
-
-  <div
-    class="modal-overlay"
-    id="modal-carrinho"
-  >
+  <div class="modal-overlay" id="modal-carrinho">
 
     <div class="modal">
 
@@ -1211,33 +580,18 @@
         🛒 Confirmar Pedido
       </div>
 
-
       <div id="modal-carrinho-itens"></div>
-
 
       <div class="divider"></div>
 
-
       <div class="modal-total-row">
-
-        <span class="modal-total-label">
-          Total
-        </span>
-
-        <span
-          class="modal-total-valor"
-          id="modal-total"
-        >
-          R$ 0,00
-        </span>
-
+        <span class="modal-total-label">Total</span>
+        <span class="modal-total-valor" id="modal-total">R$ 0,00</span>
       </div>
-
 
       <button
         class="btn-primario"
         onclick="confirmarPedido()"
-        type="button"
       >
         ✅ Enviar Pedido →
       </button>
@@ -1247,7 +601,6 @@
       <button
         class="btn-secundario"
         onclick="fecharModal('modal-carrinho')"
-        type="button"
       >
         Cancelar
       </button>
@@ -1256,59 +609,35 @@
 
   </div>
 
-
-  <!-- ============================================================
-       MODAL — PRODUTO
-       ============================================================ -->
-
-  <div
-    class="modal-overlay"
-    id="modal-produto"
-  >
+  <div class="modal-overlay" id="modal-produto">
 
     <div class="modal">
 
-      <div
-        class="modal-titulo"
-        id="modal-produto-titulo"
-      >
+      <div class="modal-titulo" id="modal-produto-titulo">
         + Novo Produto
       </div>
 
+      <input type="hidden" id="prod-id" />
 
-      <input
-        type="hidden"
-        id="prod-id"
-      >
-
-
-      <label class="label">
-        Nome do Produto
-      </label>
+      <label class="label">Nome do Produto</label>
 
       <input
         class="input"
         type="text"
         id="prod-nome"
         placeholder="Ex: Suco de Laranja"
-      >
+      />
 
-
-      <label class="label">
-        Categoria
-      </label>
+      <label class="label">Categoria</label>
 
       <input
         class="input"
         type="text"
         id="prod-categoria"
         placeholder="Ex: Sucos, Lanches, Adicionais…"
-      >
+      />
 
-
-      <label class="label">
-        Preço (R$)
-      </label>
+      <label class="label">Preço (R$)</label>
 
       <input
         class="input"
@@ -1317,92 +646,47 @@
         step="0.01"
         min="0"
         placeholder="0,00"
-      >
+      />
 
-
-      <label class="label">
-        Descrição (opcional)
-      </label>
+      <label class="label">Descrição (opcional)</label>
 
       <input
         class="input"
         type="text"
         id="prod-desc"
         placeholder="Ex: 500ml, natural, sem conservantes"
-      >
+      />
 
+      <label class="label">📸 Foto do Produto</label>
 
-      <label class="label">
-        📸 Foto do Produto
-      </label>
-
-
-      <div
-        style="
-          display:flex;
-          align-items:center;
-          gap:12px;
-          margin-bottom:10px;
-        "
-      >
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
 
         <div
           id="prod-img-preview"
-          style="
-            width:72px;
-            height:72px;
-            border-radius:10px;
-            background:var(--verde-bg);
-            border:2px dashed var(--borda);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:2rem;
-            overflow:hidden;
-            flex-shrink:0;
-          "
+          style="width:72px;height:72px;border-radius:10px;background:var(--verde-bg);border:2px dashed var(--borda);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;flex-shrink:0"
         >
           🖼️
         </div>
 
-
-        <div style="flex:1;">
+        <div style="flex:1">
 
           <label
-            style="
-              display:block;
-              width:100%;
-              padding:10px;
-              background:var(--laranja);
-              color:#fff;
-              border-radius:var(--raio-sm);
-              text-align:center;
-              font-weight:600;
-              font-size:0.9rem;
-              cursor:pointer;
-            "
+            style="display:block;width:100%;padding:10px;background:var(--laranja);color:#fff;border-radius:var(--raio-sm);text-align:center;font-weight:600;font-size:0.9rem;cursor:pointer"
           >
-
             📂 Escolher Foto
 
             <input
               type="file"
               id="prod-imagem-file"
               accept="image/*"
-              style="display:none;"
+              style="display:none"
               onchange="previewImagemProduto(this)"
-            >
+            />
 
           </label>
 
-
           <div
-            style="
-              font-size:0.7rem;
-              color:var(--texto-2);
-              margin-top:4px;
-              text-align:center;
-            "
+            style="font-size:0.7rem;color:var(--texto-2);margin-top:4px;text-align:center"
           >
             JPG, PNG ou WEBP
           </div>
@@ -1411,26 +695,15 @@
 
       </div>
 
+      <input type="hidden" id="prod-imagem" />
 
-      <input
-        type="hidden"
-        id="prod-imagem"
-      >
-
-
-      <details style="margin-bottom:12px;">
+      <details style="margin-bottom:12px">
 
         <summary
-          style="
-            font-size:0.75rem;
-            color:var(--texto-2);
-            cursor:pointer;
-            user-select:none;
-          "
+          style="font-size:0.75rem;color:var(--texto-2);cursor:pointer;user-select:none"
         >
           Ou digitar nome do arquivo manualmente (pasta img/)
         </summary>
-
 
         <input
           class="input"
@@ -1438,119 +711,66 @@
           id="prod-imagem-manual"
           placeholder="Ex: linguica.jpg"
           oninput="previewImagemManual(this.value)"
-          style="margin-top:6px;"
-        >
-
+          style="margin-top:6px"
+        />
 
         <div
-          style="
-            font-size:0.7rem;
-            color:var(--texto-2);
-            margin-top:4px;
-          "
+          style="font-size:0.7rem;color:var(--texto-2);margin-top:4px"
         >
           Coloque o arquivo dentro da pasta <strong>img/</strong> ao lado do index.html
         </div>
 
       </details>
 
-
-      <div
-        style="
-          display:flex;
-          gap:16px;
-          margin-bottom:14px;
-        "
-      >
+      <div style="display:flex;gap:16px;margin-bottom:14px">
 
         <label
-          style="
-            display:flex;
-            align-items:center;
-            gap:6px;
-            cursor:pointer;
-            font-size:0.9rem;
-            font-weight:500;
-          "
+          style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500"
         >
-
           <input
             type="checkbox"
             id="prod-mais-vendido"
-            style="
-              width:18px;
-              height:18px;
-              accent-color:var(--laranja);
-            "
-          >
-
+            style="width:18px;height:18px;accent-color:var(--laranja)"
+          />
           ⭐ Mais Pedido
-
         </label>
 
-
         <label
-          style="
-            display:flex;
-            align-items:center;
-            gap:6px;
-            cursor:pointer;
-            font-size:0.9rem;
-            font-weight:500;
-          "
+          style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;font-weight:500"
         >
-
           <input
             type="checkbox"
             id="prod-promocao"
-            style="
-              width:18px;
-              height:18px;
-              accent-color:var(--vermelho);
-            "
-          >
-
+            style="width:18px;height:18px;accent-color:var(--vermelho)"
+          />
           🔥 Promoção
-
         </label>
 
       </div>
 
-
       <button
         class="btn-primario"
         onclick="salvarProduto()"
-        type="button"
       >
         💾 Salvar Produto
       </button>
 
-
       <br><br>
-
 
       <button
         class="btn-sm"
         id="btn-gerenciar-adicionais"
+        style="display:none;width:100%;margin-bottom:12px"
         onclick="abrirModalAdicionaisProduto()"
-        type="button"
-        style="
-          display:none;
-          width:100%;
-          margin-bottom:12px;
-        "
       >
         ⚡ Gerenciar Adicionais
       </button>
 
-
       <br><br>
-
 
       <button
         class="btn-secundario"
         onclick="fecharModal('modal-produto')"
-        type="button"
       >
         Cancelar
       </button>
@@ -1559,15 +779,7 @@
 
   </div>
 
-
-  <!-- ============================================================
-       MODAL — GERENCIAR ADICIONAIS
-       ============================================================ -->
-
-  <div
-    class="modal-overlay"
-    id="modal-adicionais-gerenciar"
-  >
+  <div class="modal-overlay" id="modal-adicionais-gerenciar">
 
     <div class="modal">
 
@@ -1576,56 +788,37 @@
         <span id="modal-adic-prod-nome"></span>
       </div>
 
-
       <div
         id="lista-adicionais-produto"
         style="margin-bottom:16px;"
       ></div>
 
-
       <button
         class="btn-sm"
         onclick="abrirFormAdicional()"
-        type="button"
-        style="width:100%;margin-bottom:12px;"
+        style="width:100%;margin-bottom:12px"
       >
         + Novo Adicional
       </button>
 
-
       <div
         id="form-adicional"
-        style="
-          display:none;
-          background:var(--superficie);
-          padding:12px;
-          border-radius:var(--raio-sm);
-          margin-bottom:12px;
-        "
+        style="display:none;background:var(--superficie);padding:12px;border-radius:var(--raio-sm);margin-bottom:12px"
       >
 
-        <input
-          type="hidden"
-          id="adic-id"
-        >
+        <input type="hidden" id="adic-id" />
 
-
-        <label class="label">
-          Nome
-        </label>
+        <label class="label">Nome</label>
 
         <input
           class="input"
           type="text"
           id="adic-nome"
           placeholder="Ex: Whey Protein"
-          style="margin-bottom:8px;"
-        >
+          style="margin-bottom:8px"
+        />
 
-
-        <label class="label">
-          Preço (R$)
-        </label>
+        <label class="label">Preço (R$)</label>
 
         <input
           class="input"
@@ -1634,39 +827,32 @@
           placeholder="5.00"
           step="0.01"
           min="0"
-          style="margin-bottom:8px;"
-        >
-
+          style="margin-bottom:8px"
+        />
 
         <button
           class="btn-sm"
           onclick="salvarAdicional()"
-          type="button"
-          style="width:100%;margin-bottom:8px;"
+          style="width:100%;margin-bottom:8px"
         >
           ✅ Salvar Adicional
         </button>
 
-
         <button
           class="btn-sm-vermelho"
           onclick="cancelarFormAdicional()"
-          type="button"
-          style="width:100%;"
+          style="width:100%"
         >
           Cancelar
         </button>
 
       </div>
 
-
       <div class="divider"></div>
-
 
       <button
         class="btn-primario"
         onclick="fecharModal('modal-adicionais-gerenciar')"
-        type="button"
       >
         Pronto
       </button>
@@ -1675,30 +861,17 @@
 
   </div>
 
-
-  <!-- ============================================================
-       MODAL — COMPROVANTE
-       ============================================================ -->
-
-  <div
-    class="modal-overlay"
-    id="modal-comprovante"
-  >
+  <div class="modal-overlay" id="modal-comprovante">
 
     <div class="modal">
 
-      <div class="modal-titulo">
-        🧾 Comprovante
-      </div>
-
+      <div class="modal-titulo">🧾 Comprovante</div>
 
       <div id="comprovante-conteudo"></div>
-
 
       <button
         class="btn-primario modal-btn"
         onclick="fecharModal('modal-comprovante')"
-        type="button"
       >
         Fechar
       </button>
@@ -1707,15 +880,7 @@
 
   </div>
 
-
-  <!-- ============================================================
-       MODAL — HISTÓRICO
-       ============================================================ -->
-
-  <div
-    class="modal-overlay"
-    id="modal-historico"
-  >
+  <div class="modal-overlay" id="modal-historico">
 
     <div class="modal">
 
@@ -1726,14 +891,11 @@
         Histórico
       </div>
 
-
       <div id="historico-conteudo"></div>
-
 
       <button
         class="btn-secundario modal-btn"
         onclick="fecharModal('modal-historico')"
-        type="button"
       >
         Fechar
       </button>
@@ -1742,15 +904,7 @@
 
   </div>
 
-
-  <!-- ============================================================
-       MODAL — CLIENTE
-       ============================================================ -->
-
-  <div
-    class="modal-overlay"
-    id="modal-cliente"
-  >
+  <div class="modal-overlay" id="modal-cliente">
 
     <div class="modal">
 
@@ -1758,47 +912,36 @@
         + Novo Cliente
       </div>
 
-
-      <label class="label">
-        Nome
-      </label>
+      <label class="label">Nome</label>
 
       <input
         class="input"
         type="text"
         id="cli-nome"
         placeholder="Nome completo"
-      >
+      />
 
-
-      <label class="label">
-        Telefone
-      </label>
+      <label class="label">Telefone</label>
 
       <input
         class="input"
         type="tel"
         id="cli-tel"
         placeholder="(19) 99999-9999"
-      >
-
+      />
 
       <button
         class="btn-primario"
         onclick="salvarCliente()"
-        type="button"
       >
         💾 Salvar Cliente
       </button>
 
-
       <br><br>
-
 
       <button
         class="btn-secundario"
         onclick="fecharModal('modal-cliente')"
-        type="button"
       >
         Cancelar
       </button>
@@ -1807,75 +950,38 @@
 
   </div>
 
-
-  <!-- ============================================================
-       TOAST
-       ============================================================ -->
-
-  <div
-    class="toast"
-    id="toast"
-  ></div>
-
-
-  <!-- ============================================================
-       JAVASCRIPT PRINCIPAL
-       ============================================================ -->
+  <div class="toast" id="toast"></div>
 
   <script src="script.js"></script>
 
-
-  <!-- ============================================================
-       SERVICE WORKER / PWA
-       ============================================================ -->
-
   <script>
-
     if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
 
-      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').then(function(reg) {
 
-        navigator.serviceWorker
-          .register('./sw.js')
-          .then(function (reg) {
+          reg.onupdatefound = function() {
 
-            reg.onupdatefound = function () {
+            var installingWorker = reg.installing;
 
-              var installingWorker = reg.installing;
+            installingWorker.onstatechange = function() {
 
-              if (!installingWorker) return;
-
-              installingWorker.onstatechange = function () {
-
-                if (
-                  installingWorker.state === 'installed' &&
-                  navigator.serviceWorker.controller
-                ) {
-
-                  window.location.reload();
-
-                }
-
-              };
+              if (
+                installingWorker.state === 'installed' &&
+                navigator.serviceWorker.controller
+              ) {
+                window.location.reload();
+              }
 
             };
 
-          })
-          .catch(function (erro) {
+          };
 
-            console.error(
-              'Erro ao registrar Service Worker:',
-              erro
-            );
-
-          });
+        });
 
       });
-
     }
-
   </script>
 
 </body>
-
 </html>
