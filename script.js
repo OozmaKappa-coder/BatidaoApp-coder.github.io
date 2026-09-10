@@ -1,7 +1,7 @@
 /* script.js */
 
 const firebaseConfig = {
-  apiKey: "1:1086945887838:web:10329855c2299b5d3556cf",
+  apiKey: "AIzaSyBhvhhuu3AAQuRNbElpqOyE3-I00tU1Uw",
   authDomain: "sistema-casa-de-sucos.firebaseapp.com",
   databaseURL: "https://sistema-casa-de-sucos-default-rtdb.firebaseio.com",
   projectId: "sistema-casa-de-sucos",
@@ -467,15 +467,14 @@ function mostrarApp() {
       'Perfil: ' + perfilAtual;
   }
 
-  const ids = [
-    'nav-acompanhamento',
+  const idsSempreOcultosParaCliente = [
     'nav-cardapio',
     'nav-clientes',
     'nav-relatorios',
     'nav-config'
   ];
 
-  ids.forEach(id => {
+  idsSempreOcultosParaCliente.forEach(id => {
 
     const el =
       document.getElementById(id);
@@ -488,6 +487,29 @@ function mostrarApp() {
           : '';
     }
   });
+
+  const navAcompanhamento =
+    document.getElementById(
+      'nav-acompanhamento'
+    );
+
+  if (navAcompanhamento) {
+
+    navAcompanhamento.style.display = '';
+
+    const textoNav =
+      navAcompanhamento.querySelector(
+        '.nav-item-texto'
+      );
+
+    if (textoNav) {
+
+      textoNav.textContent =
+        perfilAtual === 'cliente'
+          ? 'Meu Pedido'
+          : 'Pedidos';
+    }
+  }
 
   const cardAdmin =
     document.getElementById(
@@ -553,9 +575,9 @@ function mostrarApp() {
 
   carregarProdutos();
 
-  if (perfilAtual !== 'cliente') {
+  escutarPedidos();
 
-    escutarPedidos();
+  if (perfilAtual !== 'cliente') {
     carregarClientes();
   }
 
@@ -575,9 +597,16 @@ function mudarTela(
   btnClicado
 ) {
 
+  const telasPermitidasCliente = [
+    'pedido',
+    'acompanhamento'
+  ];
+
   if (
     perfilAtual === 'cliente' &&
-    nomeTela !== 'pedido'
+    !telasPermitidasCliente.includes(
+      nomeTela
+    )
   ) {
 
     mostrarToast(
@@ -601,9 +630,15 @@ function mudarTela(
 
   tela.classList.add('ativa');
 
+  const tituloFinal =
+    nomeTela === 'acompanhamento' &&
+    perfilAtual === 'cliente'
+      ? 'Meu Pedido'
+      : titulo;
+
   document.getElementById(
     'titulo-tela'
-  ).textContent = titulo;
+  ).textContent = tituloFinal;
 
   document.querySelectorAll('.nav-item').forEach(b => {
     b.classList.remove('ativo');
@@ -2639,6 +2674,62 @@ function escutarPedidos() {
   if (unsubPedidos)
     unsubPedidos();
 
+  if (perfilAtual === 'cliente') {
+
+    // O cliente só pode enxergar os PRÓPRIOS pedidos.
+    // Por isso a consulta é filtrada por clienteUid
+    // (e reforçada nas Regras de Segurança do Firestore).
+    unsubPedidos =
+      db.collection('pedidos')
+        .where(
+          'clienteUid',
+          '==',
+          usuarioAtual.uid
+        )
+        .onSnapshot(
+          snap => {
+
+            todosPedidos =
+              snap.docs
+                .map(d => ({
+                  id: d.id,
+                  ...d.data()
+                }))
+                .sort((a, b) => {
+
+                  const ta =
+                    a.criadoEm?.toMillis
+                      ? a.criadoEm.toMillis()
+                      : 0;
+
+                  const tb =
+                    b.criadoEm?.toMillis
+                      ? b.criadoEm.toMillis()
+                      : 0;
+
+                  return tb - ta;
+                });
+
+            renderizarPedidos();
+
+          },
+          erro => {
+
+            console.error(
+              'Erro ao escutar pedidos do cliente:',
+              erro
+            );
+
+            mostrarToast(
+              'Erro ao sincronizar seu pedido.',
+              'erro'
+            );
+          }
+        );
+
+    return;
+  }
+
   unsubPedidos =
     db.collection('pedidos')
       .orderBy(
@@ -2837,7 +2928,12 @@ function renderizarPedidos() {
 
       let acoes = '';
 
+      const ehStaff =
+        perfilAtual === 'gerente' ||
+        perfilAtual === 'atendente';
+
       if (
+        ehStaff &&
         p.status === 'aguardando'
       ) {
 
@@ -2861,6 +2957,7 @@ function renderizarPedidos() {
       }
 
       if (
+        ehStaff &&
         p.status === 'preparo'
       ) {
 
