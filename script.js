@@ -1,7 +1,7 @@
 /* script.js */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBhvhhuu3AAQuRNbElpqOyE3-I00tU1Uw",
+  apiKey: "AIzaSyBhvhhuu3AAQuRNbElpqOyE3-I00tU1UJw",
   authDomain: "sistema-casa-de-sucos.firebaseapp.com",
   databaseURL: "https://sistema-casa-de-sucos-default-rtdb.firebaseio.com",
   projectId: "sistema-casa-de-sucos",
