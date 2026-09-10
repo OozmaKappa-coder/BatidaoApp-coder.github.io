@@ -467,14 +467,15 @@ function mostrarApp() {
       'Perfil: ' + perfilAtual;
   }
 
-  const idsSempreOcultosParaCliente = [
+  const ids = [
+    'nav-acompanhamento',
     'nav-cardapio',
     'nav-clientes',
     'nav-relatorios',
     'nav-config'
   ];
 
-  idsSempreOcultosParaCliente.forEach(id => {
+  ids.forEach(id => {
 
     const el =
       document.getElementById(id);
@@ -487,29 +488,6 @@ function mostrarApp() {
           : '';
     }
   });
-
-  const navAcompanhamento =
-    document.getElementById(
-      'nav-acompanhamento'
-    );
-
-  if (navAcompanhamento) {
-
-    navAcompanhamento.style.display = '';
-
-    const textoNav =
-      navAcompanhamento.querySelector(
-        '.nav-item-texto'
-      );
-
-    if (textoNav) {
-
-      textoNav.textContent =
-        perfilAtual === 'cliente'
-          ? 'Meu Pedido'
-          : 'Pedidos';
-    }
-  }
 
   const cardAdmin =
     document.getElementById(
@@ -575,9 +553,9 @@ function mostrarApp() {
 
   carregarProdutos();
 
-  escutarPedidos();
-
   if (perfilAtual !== 'cliente') {
+
+    escutarPedidos();
     carregarClientes();
   }
 
@@ -597,16 +575,9 @@ function mudarTela(
   btnClicado
 ) {
 
-  const telasPermitidasCliente = [
-    'pedido',
-    'acompanhamento'
-  ];
-
   if (
     perfilAtual === 'cliente' &&
-    !telasPermitidasCliente.includes(
-      nomeTela
-    )
+    nomeTela !== 'pedido'
   ) {
 
     mostrarToast(
@@ -630,15 +601,9 @@ function mudarTela(
 
   tela.classList.add('ativa');
 
-  const tituloFinal =
-    nomeTela === 'acompanhamento' &&
-    perfilAtual === 'cliente'
-      ? 'Meu Pedido'
-      : titulo;
-
   document.getElementById(
     'titulo-tela'
-  ).textContent = tituloFinal;
+  ).textContent = titulo;
 
   document.querySelectorAll('.nav-item').forEach(b => {
     b.classList.remove('ativo');
@@ -2674,62 +2639,6 @@ function escutarPedidos() {
   if (unsubPedidos)
     unsubPedidos();
 
-  if (perfilAtual === 'cliente') {
-
-    // O cliente só pode enxergar os PRÓPRIOS pedidos.
-    // Por isso a consulta é filtrada por clienteUid
-    // (e reforçada nas Regras de Segurança do Firestore).
-    unsubPedidos =
-      db.collection('pedidos')
-        .where(
-          'clienteUid',
-          '==',
-          usuarioAtual.uid
-        )
-        .onSnapshot(
-          snap => {
-
-            todosPedidos =
-              snap.docs
-                .map(d => ({
-                  id: d.id,
-                  ...d.data()
-                }))
-                .sort((a, b) => {
-
-                  const ta =
-                    a.criadoEm?.toMillis
-                      ? a.criadoEm.toMillis()
-                      : 0;
-
-                  const tb =
-                    b.criadoEm?.toMillis
-                      ? b.criadoEm.toMillis()
-                      : 0;
-
-                  return tb - ta;
-                });
-
-            renderizarPedidos();
-
-          },
-          erro => {
-
-            console.error(
-              'Erro ao escutar pedidos do cliente:',
-              erro
-            );
-
-            mostrarToast(
-              'Erro ao sincronizar seu pedido.',
-              'erro'
-            );
-          }
-        );
-
-    return;
-  }
-
   unsubPedidos =
     db.collection('pedidos')
       .orderBy(
@@ -2928,12 +2837,7 @@ function renderizarPedidos() {
 
       let acoes = '';
 
-      const ehStaff =
-        perfilAtual === 'gerente' ||
-        perfilAtual === 'atendente';
-
       if (
-        ehStaff &&
         p.status === 'aguardando'
       ) {
 
@@ -2957,7 +2861,6 @@ function renderizarPedidos() {
       }
 
       if (
-        ehStaff &&
         p.status === 'preparo'
       ) {
 
