@@ -1,7 +1,7 @@
 /* script.js */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBhvhhuu3AAQuRNbElpqOyE3-I00tU1UJw",
+  apiKey: "AIzaSyBhvhhuu3AAQuRNbElpqOyE3-I00tU1Uw",
   authDomain: "sistema-casa-de-sucos.firebaseapp.com",
   databaseURL: "https://sistema-casa-de-sucos-default-rtdb.firebaseio.com",
   projectId: "sistema-casa-de-sucos",
@@ -487,6 +487,62 @@ function mostrarApp() {
           : '';
     }
   });
+
+  // Relatórios e edição de cardápio são exclusivos do gerente.
+  const navRelatorios =
+    document.getElementById(
+      'nav-relatorios'
+    );
+
+  if (
+    navRelatorios &&
+    perfilAtual !== 'cliente'
+  ) {
+
+    navRelatorios.style.display =
+      perfilAtual === 'gerente'
+        ? ''
+        : 'none';
+  }
+
+  const btnAddProduto =
+    document.getElementById(
+      'btn-add-produto'
+    );
+
+  if (btnAddProduto) {
+
+    btnAddProduto.style.display =
+      perfilAtual === 'gerente'
+        ? ''
+        : 'none';
+  }
+
+  const cardSync =
+    document.getElementById(
+      'card-sincronizacao'
+    );
+
+  if (cardSync) {
+
+    cardSync.style.display =
+      perfilAtual === 'gerente'
+        ? ''
+        : 'none';
+  }
+
+  const btnSairCliente =
+    document.getElementById(
+      'btn-sair-cliente'
+    );
+
+  if (btnSairCliente) {
+
+    btnSairCliente.style.display =
+      perfilAtual === 'cliente'
+        ? 'flex'
+        : 'none';
+  }
 
   const navAcompanhamento =
     document.getElementById(
@@ -1358,19 +1414,25 @@ function renderizarProdutosAdmin() {
             style="display:flex;gap:6px;flex-shrink:0"
           >
 
-            <button
-              class="btn-sm"
-              onclick='editarProduto(${dadosBtn})'
-            >
-              ✏️
-            </button>
+            ${
+              perfilAtual === 'gerente'
+                ? `
+                  <button
+                    class="btn-sm"
+                    onclick='editarProduto(${dadosBtn})'
+                  >
+                    ✏️
+                  </button>
 
-            <button
-              class="btn-sm-vermelho"
-              onclick="excluirProduto('${p.id}','${escapeJS(p.nome)}')"
-            >
-              🗑️
-            </button>
+                  <button
+                    class="btn-sm-vermelho"
+                    onclick="excluirProduto('${p.id}','${escapeJS(p.nome)}')"
+                  >
+                    🗑️
+                  </button>
+                `
+                : ''
+            }
 
           </div>
 
@@ -2916,6 +2978,16 @@ function renderizarPedidos() {
           cls: 'status-pronto'
         },
 
+        saiu_entrega: {
+          label: 'Saiu p/ Entrega',
+          cls: 'status-saiu-entrega'
+        },
+
+        entregue: {
+          label: 'Entregue',
+          cls: 'status-entregue'
+        },
+
         cancelado: {
           label: 'Cancelado',
           cls: 'status-cancelado'
@@ -2931,6 +3003,9 @@ function renderizarPedidos() {
       const ehStaff =
         perfilAtual === 'gerente' ||
         perfilAtual === 'atendente';
+
+      const ehDelivery =
+        !!p.enderecoEntrega;
 
       if (
         ehStaff &&
@@ -2981,7 +3056,55 @@ function renderizarPedidos() {
       }
 
       if (
+        ehStaff &&
         p.status === 'pronto'
+      ) {
+
+        if (ehDelivery) {
+
+          acoes += `
+            <button
+              class="btn-sm"
+              onclick="mudarStatusPedido('${p.id}','saiu_entrega')"
+            >
+              🛵 Saiu p/ Entrega
+            </button>
+          `;
+
+        } else {
+
+          acoes += `
+            <button
+              class="btn-sm-verde"
+              onclick="mudarStatusPedido('${p.id}','entregue')"
+            >
+              📦 Entregue
+            </button>
+          `;
+        }
+      }
+
+      if (
+        ehStaff &&
+        p.status === 'saiu_entrega'
+      ) {
+
+        acoes += `
+          <button
+            class="btn-sm-verde"
+            onclick="mudarStatusPedido('${p.id}','entregue')"
+          >
+            📦 Entregue
+          </button>
+        `;
+      }
+
+      if (
+        [
+          'pronto',
+          'saiu_entrega',
+          'entregue'
+        ].includes(p.status)
       ) {
 
         acoes += `
@@ -2994,9 +3117,7 @@ function renderizarPedidos() {
         `;
       }
 
-      if (
-        perfilAtual === 'gerente'
-      ) {
+      if (ehStaff) {
 
         acoes += `
           <button
@@ -3137,7 +3258,10 @@ async function mudarStatusPedido(
 
 async function excluirPedido(id) {
 
-  if (perfilAtual !== 'gerente')
+  if (
+    perfilAtual !== 'gerente' &&
+    perfilAtual !== 'atendente'
+  )
     return;
 
   if (
@@ -3642,6 +3766,9 @@ async function verHistorico(
 
     let snap;
 
+    // Consulta sem orderBy para não depender de
+    // índice composto no Firestore — a ordenação
+    // é feita aqui mesmo, em JS.
     if (
       cliente?.telefoneNormalizado
     ) {
@@ -3653,10 +3780,6 @@ async function verHistorico(
             'clienteTelefoneNormalizado',
             '==',
             cliente.telefoneNormalizado
-          )
-          .orderBy(
-            'criadoEm',
-            'desc'
           )
           .get();
 
@@ -3670,10 +3793,6 @@ async function verHistorico(
             '==',
             nome
           )
-          .orderBy(
-            'criadoEm',
-            'desc'
-          )
           .get();
     }
 
@@ -3682,6 +3801,7 @@ async function verHistorico(
       document.getElementById(
         'historico-conteudo'
       ).innerHTML = `
+        ${enderecosHtml(cliente)}
         <div class="empty">
           <div class="empty-msg">
             Nenhum pedido encontrado.
@@ -3693,12 +3813,27 @@ async function verHistorico(
     }
 
     const pedidos =
-      snap.docs.map(
-        d => ({
-          id: d.id,
-          ...d.data()
-        })
-      );
+      snap.docs
+        .map(
+          d => ({
+            id: d.id,
+            ...d.data()
+          })
+        )
+        .sort((a, b) => {
+
+          const ta =
+            a.criadoEm?.toMillis
+              ? a.criadoEm.toMillis()
+              : 0;
+
+          const tb =
+            b.criadoEm?.toMillis
+              ? b.criadoEm.toMillis()
+              : 0;
+
+          return tb - ta;
+        });
 
     let totalGasto = 0;
     let html = '';
@@ -3742,6 +3877,18 @@ async function verHistorico(
                 .join(', ')}
             </div>
 
+            ${
+              p.enderecoEntrega
+                ? `
+                  <div
+                    style="font-size:0.75rem;color:var(--texto-2);margin-top:2px"
+                  >
+                    📍 ${p.enderecoEntrega}
+                  </div>
+                `
+                : ''
+            }
+
           </div>
 
           <span class="relatorio-valor">
@@ -3755,6 +3902,7 @@ async function verHistorico(
     });
 
     html = `
+      ${enderecosHtml(cliente)}
       <div
         style="padding:10px;background:var(--fundo);border-radius:var(--raio-sm);margin-bottom:12px"
       >
@@ -3797,6 +3945,48 @@ async function verHistorico(
       </div>
     `;
   }
+}
+
+function enderecosHtml(cliente) {
+
+  if (
+    !cliente ||
+    !cliente.enderecos ||
+    !cliente.enderecos.filter(Boolean).length
+  ) {
+    return '';
+  }
+
+  const enderecosUnicos =
+    [...new Set(
+      cliente.enderecos.filter(Boolean)
+    )];
+
+  return `
+    <div
+      style="padding:10px;background:var(--fundo);border-radius:var(--raio-sm);margin-bottom:12px"
+    >
+
+      <div
+        style="color:var(--texto-2);font-size:0.8rem;margin-bottom:4px"
+      >
+        📍 Telefone: ${cliente.telefone || '—'}
+      </div>
+
+      ${enderecosUnicos
+        .map(
+          e => `
+            <div
+              style="font-size:0.85rem;margin-top:2px"
+            >
+              • ${e}
+            </div>
+          `
+        )
+        .join('')}
+
+    </div>
+  `;
 }
 
 async function carregarRelatorio() {

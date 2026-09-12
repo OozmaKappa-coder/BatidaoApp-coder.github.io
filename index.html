@@ -3,12 +3,13 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Batidão – Sistema de Pedidos</title>
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#3a7d2c" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Batidão" />
 
@@ -146,6 +147,15 @@
     <div class="topbar">
       <div class="topbar-logo">🥤 Batidão</div>
       <div class="topbar-titulo" id="titulo-tela">Pedidos</div>
+      <button
+        class="btn-sair-cliente"
+        id="btn-sair-cliente"
+        onclick="fazerLogout()"
+        style="display:none;"
+        title="Sair"
+      >
+        🚪
+      </button>
       <div class="badge-perfil" id="badge-perfil">—</div>
     </div>
 
@@ -232,6 +242,8 @@
           <button class="filtro-btn" onclick="filtrarPedidos('aguardando',this)">⏳ Aguardando</button>
           <button class="filtro-btn" onclick="filtrarPedidos('preparo',this)">🔥 Em Preparo</button>
           <button class="filtro-btn" onclick="filtrarPedidos('pronto',this)">✅ Pronto</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('saiu_entrega',this)">🛵 Saída</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('entregue',this)">📦 Entregue</button>
           <button class="filtro-btn" onclick="filtrarPedidos('cancelado',this)">❌ Cancelado</button>
         </div>
 
@@ -249,7 +261,7 @@
         <div class="secao-header">
           <div class="secao-titulo">Cardápio</div>
 
-          <button class="btn-sm" onclick="abrirModalProduto()">
+          <button class="btn-sm" id="btn-add-produto" onclick="abrirModalProduto()">
             + Produto
           </button>
         </div>
@@ -349,7 +361,7 @@
 
         </div>
 
-        <div class="card">
+        <div class="card" id="card-sincronizacao">
 
           <div class="info-label-lg">Loja</div>
 
@@ -453,7 +465,7 @@
           <path stroke-linecap="round" stroke-linejoin="round"
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
         </svg>
-        Pedidos
+        <span class="nav-item-texto">Pedidos</span>
       </button>
 
       <button

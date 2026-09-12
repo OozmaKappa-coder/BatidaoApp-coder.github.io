@@ -1,13 +1,15 @@
 /* sw.js */
 
-const CACHE_NAME = 'batidao-v3-cliente';
+const CACHE_NAME = 'batidao-v4-status-entrega';
 
 const ARQUIVOS_CACHE = [
   './',
   './index.html',
   './script.js',
   './style.css',
-  './manifest.json'
+  './manifest.json',
+  './img/icon-192.png',
+  './img/icon-512.png'
 ];
 
 self.addEventListener(

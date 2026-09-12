@@ -306,7 +306,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px 12px;
+      padding: calc(16px + env(safe-area-inset-top)) 20px 12px;
       background: var(--superficie);
       border-bottom: 1px solid var(--borda);
       position: sticky;       /* fica fixo no topo durante o scroll            */
@@ -344,12 +344,32 @@
     .badge-gerente  { background: rgba(58,125,44,0.15); color: var(--verde); }
     .badge-atendente { background: rgba(249,115,22,0.15); color: var(--laranja); }
 
+    /* Botão de sair, exclusivo da sessão Cliente (fica no topo) */
+    .btn-sair-cliente {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(239,68,68,0.12);
+      color: var(--vermelho);
+      font-size: 1rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-sair-cliente:active {
+      background: rgba(239,68,68,0.22);
+    }
+
     /* ---- ÁREA DE CONTEÚDO PRINCIPAL ---- */
     .conteudo {
       flex: 1;                /* ocupa todo o espaço entre topbar e navbar     */
       overflow-y: auto;       /* scroll apenas no conteúdo                     */
       padding: 16px;
-      padding-bottom: 80px;   /* espaço para a barra de navegação inferior     */
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));   /* espaço para a barra de navegação inferior     */
     }
 
     /* ---- NAVEGAÇÃO INFERIOR (navbar) ---- */
@@ -363,6 +383,7 @@
       max-width: 480px;
       background: var(--superficie);
       border-top: 1px solid var(--borda);
+      padding-bottom: env(safe-area-inset-bottom);
       z-index: 10;
     }
 
@@ -499,6 +520,8 @@
     .status-aguardando { background: rgba(249,115,22,0.15); color: var(--laranja); }
     .status-preparo    { background: rgba(59,130,246,0.15); color: var(--azul); }
     .status-pronto     { background: rgba(58,125,44,0.15);  color: var(--verde); }
+    .status-saiu-entrega { background: rgba(234,104,0,0.15); color: var(--laranja-esc); }
+    .status-entregue   { background: rgba(90,168,50,0.18);  color: var(--verde-claro); }
     .status-cancelado  { background: rgba(239,68,68,0.15);  color: var(--vermelho); }
 
     /* ---- LINHA DIVISÓRIA ---- */
@@ -524,6 +547,41 @@
     }
 
     .input:focus { border-color: var(--verde); }
+
+    /* Evita que o iPhone dê zoom automático ao focar em campos
+       (Safari faz isso sempre que a fonte do input é menor que 16px) */
+    @media (max-width: 480px) {
+      .input,
+      select.input,
+      textarea.input {
+        font-size: 16px;
+      }
+
+      /* Área de toque um pouco maior no celular, sem mudar o visual
+         no desktop/tablet */
+      .btn-sm,
+      .btn-sm-vermelho,
+      .btn-sm-verde {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .filtro-btn {
+        min-height: 36px;
+      }
+    }
+
+    button,
+    .nav-item,
+    .filtro-btn,
+    .btn-sm,
+    .btn-sm-vermelho,
+    .btn-sm-verde,
+    .btn-primario {
+      touch-action: manipulation; /* remove atraso de 300ms no toque mobile */
+    }
 
     /* Select (dropdown) com mesmo estilo dos inputs */
     select.input { cursor: pointer; }
@@ -711,7 +769,7 @@
     .carrinho-bar {
       display: none;          /* aparece apenas quando há itens no carrinho    */
       position: fixed;
-      bottom: 70px;           /* acima da navbar                               */
+      bottom: calc(70px + env(safe-area-inset-bottom));           /* acima da navbar                               */
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 32px);
