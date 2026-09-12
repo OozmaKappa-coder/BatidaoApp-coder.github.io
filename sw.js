@@ -1,6 +1,6 @@
 /* sw.js */
 
-const CACHE_NAME = 'batidao-v4-status-entrega';
+const CACHE_NAME = 'batidao-v5-fix-safearea';
 
 const ARQUIVOS_CACHE = [
   './',
