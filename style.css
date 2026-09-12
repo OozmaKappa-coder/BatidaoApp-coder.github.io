@@ -110,7 +110,6 @@
       margin: 0 auto;
       position: relative;
       overflow: hidden;
-      padding-top: env(safe-area-inset-top); /* respeita o notch, sem recalcular durante o scroll */
     }
 
     /* ==========================================================================
@@ -370,7 +369,7 @@
       flex: 1;                /* ocupa todo o espaço entre topbar e navbar     */
       overflow-y: auto;       /* scroll apenas no conteúdo                     */
       padding: 16px;
-      padding-bottom: calc(80px + env(safe-area-inset-bottom));   /* espaço para a barra de navegação inferior     */
+      padding-bottom: 80px;   /* espaço para a barra de navegação inferior     */
     }
 
     /* ---- NAVEGAÇÃO INFERIOR (navbar) ---- */
@@ -384,7 +383,6 @@
       max-width: 480px;
       background: var(--superficie);
       border-top: 1px solid var(--borda);
-      padding-bottom: env(safe-area-inset-bottom);
       z-index: 10;
     }
 
@@ -770,7 +768,7 @@
     .carrinho-bar {
       display: none;          /* aparece apenas quando há itens no carrinho    */
       position: fixed;
-      bottom: calc(70px + env(safe-area-inset-bottom));           /* acima da navbar                               */
+      bottom: 70px;           /* acima da navbar                               */
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 32px);

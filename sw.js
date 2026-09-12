@@ -1,6 +1,6 @@
 /* sw.js */
 
-const CACHE_NAME = 'batidao-v5-fix-safearea';
+const CACHE_NAME = 'batidao-v6-revert-margens';
 
 const ARQUIVOS_CACHE = [
   './',
