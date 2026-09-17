@@ -1,7 +1,7 @@
 /* script.js */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBhvhhuu3AAQuRNbElpqOyE3-I00tU1UJw",
+  apiKey: "AIzaSyBhvhhuu3AAQuRNbElpqOyE3-I00tU1Uw",
   authDomain: "sistema-casa-de-sucos.firebaseapp.com",
   databaseURL: "https://sistema-casa-de-sucos-default-rtdb.firebaseio.com",
   projectId: "sistema-casa-de-sucos",
@@ -4401,6 +4401,11 @@ function renderizarAdicionais() {
             <button
               class="qty-btn"
               onclick="alterarQtyAdicional('${adic.id}',+1)"
+              ${
+                qtdAdicional >= MAX_QTD_ADICIONAL
+                  ? 'disabled style="opacity:0.4;cursor:not-allowed"'
+                  : ''
+              }
             >
               +
             </button>
@@ -4415,28 +4420,34 @@ function renderizarAdicionais() {
     html;
 }
 
+const MAX_QTD_ADICIONAL = 10;
+
 function alterarQtyAdicional(
   adicionalId,
   delta
 ) {
 
-  adicionaisTemp[adicionalId] =
-    (
-      adicionaisTemp[
-        adicionalId
-      ] || 0
-    ) + delta;
+  const atual =
+    adicionaisTemp[adicionalId] || 0;
 
-  if (
-    adicionaisTemp[
-      adicionalId
-    ] < 0
-  ) {
+  let novaQtd = atual + delta;
 
-    adicionaisTemp[
-      adicionalId
-    ] = 0;
+  if (novaQtd < 0) {
+    novaQtd = 0;
   }
+
+  if (novaQtd > MAX_QTD_ADICIONAL) {
+
+    novaQtd = MAX_QTD_ADICIONAL;
+
+    mostrarToast(
+      `Máximo de ${MAX_QTD_ADICIONAL} por adicional.`,
+      'erro'
+    );
+  }
+
+  adicionaisTemp[adicionalId] =
+    novaQtd;
 
   renderizarAdicionais();
 }
