@@ -1,6 +1,6 @@
 /* sw.js */
 
-const CACHE_NAME = 'batidao-v6-revert-margens';
+const CACHE_NAME = 'batidao-v8-limite-adicional';
 
 const ARQUIVOS_CACHE = [
   './',
