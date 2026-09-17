@@ -4401,11 +4401,6 @@ function renderizarAdicionais() {
             <button
               class="qty-btn"
               onclick="alterarQtyAdicional('${adic.id}',+1)"
-              ${
-                qtdAdicional >= MAX_QTD_ADICIONAL
-                  ? 'disabled style="opacity:0.4;cursor:not-allowed"'
-                  : ''
-              }
             >
               +
             </button>
@@ -4420,34 +4415,28 @@ function renderizarAdicionais() {
     html;
 }
 
-const MAX_QTD_ADICIONAL = 10;
-
 function alterarQtyAdicional(
   adicionalId,
   delta
 ) {
 
-  const atual =
-    adicionaisTemp[adicionalId] || 0;
-
-  let novaQtd = atual + delta;
-
-  if (novaQtd < 0) {
-    novaQtd = 0;
-  }
-
-  if (novaQtd > MAX_QTD_ADICIONAL) {
-
-    novaQtd = MAX_QTD_ADICIONAL;
-
-    mostrarToast(
-      `Máximo de ${MAX_QTD_ADICIONAL} por adicional.`,
-      'erro'
-    );
-  }
-
   adicionaisTemp[adicionalId] =
-    novaQtd;
+    (
+      adicionaisTemp[
+        adicionalId
+      ] || 0
+    ) + delta;
+
+  if (
+    adicionaisTemp[
+      adicionalId
+    ] < 0
+  ) {
+
+    adicionaisTemp[
+      adicionalId
+    ] = 0;
+  }
 
   renderizarAdicionais();
 }
