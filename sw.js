@@ -1,6 +1,6 @@
 /* sw.js */
 
-const CACHE_NAME = 'batidao-v8-limite-adicional';
+const CACHE_NAME = 'batidao-v14-completo-pedido';
 
 const ARQUIVOS_CACHE = [
   './',
