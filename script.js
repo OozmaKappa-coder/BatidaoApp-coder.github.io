@@ -13,6 +13,12 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+/* Formato numérico brasileiro: vírgula decimal e ponto de milhar (ex.: 1.234,50) */
+const FORMATO_BR = {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+};
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -51,6 +57,87 @@ function telefoneNormalizado(telefone) {
   return String(telefone || '').replace(/\D/g, '');
 }
 
+/* ===== Endereço salvo do cliente (um por telefone, neste aparelho) ===== */
+
+function chaveEnderecoCliente(telefone) {
+  return 'batidao_endereco_' + telefoneNormalizado(telefone);
+}
+
+function obterEnderecoSalvoLocal(telefone) {
+  try {
+    return localStorage.getItem(
+      chaveEnderecoCliente(telefone)
+    ) || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function salvarEnderecoLocal(telefone, endereco) {
+
+  if (!telefoneNormalizado(telefone) || !endereco) {
+    return;
+  }
+
+  try {
+    localStorage.setItem(
+      chaveEnderecoCliente(telefone),
+      endereco
+    );
+  } catch (e) {}
+}
+
+async function carregarEnderecoSalvoCliente() {
+
+  const campo =
+    document.getElementById('np-endereco');
+
+  if (!campo || perfilAtual !== 'cliente') {
+    return;
+  }
+
+  const telefone =
+    dadosClienteAtual?.telefone || '';
+
+  const id = telefoneNormalizado(telefone);
+
+  if (!id) {
+    return;
+  }
+
+  // 1) Endereço salvo neste aparelho
+  let endereco = obterEnderecoSalvoLocal(telefone);
+
+  // 2) Se não houver, tenta o último endereço
+  //    guardado no cadastro do cliente (Firestore)
+  if (!endereco) {
+
+    try {
+
+      const snap =
+        await db.collection('clientes').doc(id).get();
+
+      if (snap.exists) {
+
+        const lista =
+          (snap.data().enderecos || []).filter(Boolean);
+
+        if (lista.length) {
+          endereco = lista[lista.length - 1];
+          salvarEnderecoLocal(telefone, endereco);
+        }
+      }
+
+    } catch (e) {
+      // sem permissão de leitura: segue sem preencher
+    }
+  }
+
+  if (endereco && !campo.value.trim()) {
+    campo.value = endereco;
+  }
+}
+
 auth.onAuthStateChanged(async (usuario) => {
 
   document.getElementById('tela-loading').style.display = 'none';
@@ -58,6 +145,21 @@ auth.onAuthStateChanged(async (usuario) => {
   if (usuario) {
 
     usuarioAtual = usuario;
+
+    // Cliente que clicou em "Sair": mantém o mesmo cadastro (uid)
+    // do aparelho, mas mostra a tela de login ao reabrir o app.
+    if (
+      usuario.isAnonymous &&
+      localStorage.getItem('batidao_cliente_saiu') === '1'
+    ) {
+
+      perfilAtual = null;
+
+      document.querySelector('.app-container').style.display = 'none';
+      document.querySelector('.tela-login-container').style.display = 'flex';
+
+      return;
+    }
 
     try {
       await carregarPerfilUsuario(usuario.uid);
@@ -193,9 +295,26 @@ async function entrarComoCliente() {
     telefoneNormalizado: telefoneNormalizado(telefone)
   };
 
+  // Se o telefone for o mesmo do último acesso, é o MESMO cliente:
+  // reaproveita o cadastro (uid) e os pedidos continuam aparecendo.
+  // Se for outro telefone, é outra pessoa: começa um cadastro novo.
+  const dadosAnteriores = obterDadosClienteLocal();
+
+  const outraPessoa =
+    !!dadosAnteriores &&
+    !!dadosAnteriores.telefoneNormalizado &&
+    dadosAnteriores.telefoneNormalizado !==
+      dadosCliente.telefoneNormalizado;
+
+  localStorage.removeItem('batidao_cliente_saiu');
+
   salvarDadosClienteLocal(dadosCliente);
 
   try {
+
+    if (outraPessoa && auth.currentUser) {
+      await auth.signOut();
+    }
 
     let credencial;
 
@@ -332,7 +451,23 @@ async function fazerLogout() {
     unsubPedidos = null;
   }
 
-  await auth.signOut();
+  const eraCliente =
+    perfilAtual === 'cliente' &&
+    auth.currentUser &&
+    auth.currentUser.isAnonymous;
+
+  if (eraCliente) {
+
+    // Cliente: não encerra o cadastro do aparelho, só volta ao login.
+    // Assim, ao entrar de novo com o mesmo telefone, os pedidos continuam.
+    localStorage.setItem('batidao_cliente_saiu', '1');
+
+  } else {
+
+    localStorage.removeItem('batidao_cliente_saiu');
+
+    await auth.signOut();
+  }
 
   usuarioAtual = null;
   perfilAtual = null;
@@ -627,6 +762,10 @@ function mostrarApp() {
     if (campoCliente) {
       campoCliente.readOnly = false;
     }
+  }
+
+  if (perfilAtual === 'cliente') {
+    carregarEnderecoSalvoCliente();
   }
 
   carregarProdutos();
@@ -1113,7 +1252,7 @@ function renderCardProduto(p) {
         }
 
         <span class="produto-preco">
-          R$ ${Number(p.preco).toFixed(2)}
+          R$ ${Number(p.preco).toLocaleString('pt-BR', FORMATO_BR)}
         </span>
 
         ${
@@ -1206,7 +1345,7 @@ function renderizarMenuPedido() {
           </div>
 
           <div class="card-destaque-preco">
-            R$ ${Number(p.preco).toFixed(2)}
+            R$ ${Number(p.preco).toLocaleString('pt-BR', FORMATO_BR)}
           </div>
 
           ${
@@ -1385,7 +1524,7 @@ function renderizarProdutosAdmin() {
               <div
                 style="font-size:0.75rem;color:var(--texto-2)"
               >
-                ${p.categoria} · R$ ${Number(p.preco).toFixed(2)}
+                ${p.categoria} · R$ ${Number(p.preco).toLocaleString('pt-BR', FORMATO_BR)}
               </div>
 
               <div
@@ -1933,7 +2072,7 @@ function renderizarAdicionaisProduto() {
             <div
               style="color:var(--laranja);font-size:0.9rem"
             >
-              R$ ${Number(adic.preco).toFixed(2)}
+              R$ ${Number(adic.preco).toLocaleString('pt-BR', FORMATO_BR)}
             </div>
 
           </div>
@@ -2269,7 +2408,7 @@ function atualizarBarraCarrinho() {
       'carrinho-total-bar'
     ).textContent =
       'R$ ' +
-      total.toFixed(2);
+      total.toLocaleString('pt-BR', FORMATO_BR);
 
   } else {
 
@@ -2293,8 +2432,19 @@ function abrirModalCarrinho() {
     return;
   }
 
+  const esc = (t) =>
+    String(t == null ? '' : t)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+  const moeda = (v) =>
+    'R$ ' +
+    Number(v || 0).toLocaleString('pt-BR', FORMATO_BR);
+
   let html = '';
   let total = 0;
+  let qtdTotal = 0;
 
   itens.forEach(i => {
 
@@ -2305,79 +2455,49 @@ function abrirModalCarrinho() {
 
     let htmlAdicionais = '';
 
-    if (
-      i.adicionais &&
-      i.adicionais.length > 0
-    ) {
+    (i.adicionais || []).forEach(adic => {
+
+      const subAdicional =
+        adic.preco * adic.qtd;
+
+      subAdicionais +=
+        subAdicional;
 
       htmlAdicionais += `
-        <div
-          style="margin-top:8px;padding-top:8px;border-top:1px solid var(--borda)"
-        >
+        <div class="cart-adicional">
+          <span class="cart-adicional-nome">+ ${adic.qtd}× ${esc(adic.nome)}</span>
+          <span class="cart-adicional-preco">${moeda(subAdicional)}</span>
+        </div>
       `;
-
-      i.adicionais.forEach(adic => {
-
-        const subAdicional =
-          adic.preco * adic.qtd;
-
-        subAdicionais +=
-          subAdicional;
-
-        htmlAdicionais += `
-          <div
-            style="font-size:0.85rem;color:var(--texto-2);display:flex;justify-content:space-between;margin-bottom:4px"
-          >
-            <span>
-              + ${adic.qtd}× ${adic.nome}
-            </span>
-
-            <span>
-              R$ ${subAdicional.toFixed(2)}
-            </span>
-          </div>
-        `;
-      });
-
-      htmlAdicionais += '</div>';
-    }
+    });
 
     const htmlObs =
       i.observacoes
-        ? `
-          <div
-            style="margin-top:8px;font-size:0.8rem;color:var(--texto-2);font-style:italic"
-          >
-            📝 ${i.observacoes}
-          </div>
-        `
+        ? `<div class="cart-obs">Obs.: ${esc(i.observacoes)}</div>`
         : '';
 
     total +=
       sub +
       subAdicionais;
 
+    qtdTotal +=
+      i.qtd;
+
     html += `
-      <div
-        class="relatorio-item"
-        style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--borda)"
-      >
+      <div class="cart-item">
 
-        <div
-          style="display:flex;justify-content:space-between"
-        >
-
-          <span>
-            ${i.qtd}× ${i.nome}
-          </span>
-
-          <span class="relatorio-valor">
-            R$ ${sub.toFixed(2)}
-          </span>
-
+        <div class="cart-item-linha">
+          <span class="cart-item-qtd">${i.qtd}×</span>
+          <span class="cart-item-nome">${esc(i.nome)}</span>
+          <span class="cart-item-preco">${moeda(sub)}</span>
         </div>
 
-        ${htmlAdicionais}
+        ${
+          htmlAdicionais
+            ? `<div class="cart-adicionais">${htmlAdicionais}</div>`
+            : ''
+        }
+
         ${htmlObs}
 
       </div>
@@ -2389,9 +2509,60 @@ function abrirModalCarrinho() {
   ).innerHTML = html;
 
   document.getElementById(
+    'modal-carrinho-resumo'
+  ).textContent =
+    qtdTotal +
+    (qtdTotal === 1 ? ' item' : ' itens');
+
+  // Resumo dos dados do pedido (entrega / mesa / pagamento)
+  const linhasInfo = [];
+
+  if (perfilAtual === 'cliente') {
+
+    const enderecoResumo =
+      document.getElementById('np-endereco')?.value.trim() || '';
+
+    if (enderecoResumo) {
+      linhasInfo.push(['Entrega', enderecoResumo]);
+    }
+
+  } else {
+
+    const clienteResumo =
+      document.getElementById('np-cliente')?.value.trim() || '';
+
+    const mesaResumo =
+      document.getElementById('np-mesa')?.value.trim() || '';
+
+    if (clienteResumo) {
+      linhasInfo.push(['Cliente', clienteResumo]);
+    }
+
+    if (mesaResumo) {
+      linhasInfo.push(['Mesa', mesaResumo]);
+    }
+  }
+
+  const pagamentoResumo =
+    document.getElementById('np-pagamento')?.value || '';
+
+  if (pagamentoResumo) {
+    linhasInfo.push(['Pagamento', pagamentoResumo]);
+  }
+
+  document.getElementById(
+    'modal-carrinho-info'
+  ).innerHTML = linhasInfo.map(l => `
+    <div class="confirmar-info-linha">
+      <span class="confirmar-info-rotulo">${esc(l[0])}</span>
+      <span class="confirmar-info-valor">${esc(l[1])}</span>
+    </div>
+  `).join('');
+
+  document.getElementById(
     'modal-total'
   ).textContent =
-    'R$ ' + total.toFixed(2);
+    moeda(total);
 
   document.getElementById(
     'modal-carrinho'
@@ -2617,6 +2788,10 @@ async function confirmarPedido() {
         .collection('pedidos')
         .add(pedido);
 
+    if (perfilAtual === 'cliente') {
+      salvarEnderecoLocal(telefoneCliente, endereco);
+    }
+
     if (
       perfilAtual !== 'cliente'
     ) {
@@ -2691,8 +2866,13 @@ function limparFormularioPedido() {
     if (mesaEl)
       mesaEl.value = '';
 
-    if (enderecoEl)
-      enderecoEl.value = '';
+    if (enderecoEl) {
+      // mantém o endereço do cliente salvo para o próximo pedido
+      enderecoEl.value =
+        obterEnderecoSalvoLocal(
+          dadosClienteAtual?.telefone
+        ) || '';
+    }
 
   } else {
 
@@ -2738,10 +2918,56 @@ function escutarPedidos() {
 
   if (perfilAtual === 'cliente') {
 
-    // O cliente só pode enxergar os PRÓPRIOS pedidos.
-    // Por isso a consulta é filtrada por clienteUid
-    // (e reforçada nas Regras de Segurança do Firestore).
-    unsubPedidos =
+    // O cliente só enxerga os PRÓPRIOS pedidos:
+    //  - pelo cadastro do aparelho (clienteUid), e
+    //  - pelo telefone, para reconhecer o mesmo cliente em novos acessos.
+    // Se as Regras do Firestore não permitirem a consulta por telefone,
+    // ela é ignorada e continua valendo só a consulta por clienteUid.
+    const pedidosPorUid = {};
+    const pedidosPorTelefone = {};
+
+    const atualizarPedidosCliente = () => {
+
+      todosPedidos =
+        Object.values({
+          ...pedidosPorTelefone,
+          ...pedidosPorUid
+        })
+        .sort((a, b) => {
+
+          const ta =
+            a.criadoEm?.toMillis
+              ? a.criadoEm.toMillis()
+              : 0;
+
+          const tb =
+            b.criadoEm?.toMillis
+              ? b.criadoEm.toMillis()
+              : 0;
+
+          return tb - ta;
+        });
+
+      renderizarPedidos();
+    };
+
+    const preencher = (destino, snap) => {
+
+      Object.keys(destino).forEach(
+        k => delete destino[k]
+      );
+
+      snap.docs.forEach(d => {
+        destino[d.id] = {
+          id: d.id,
+          ...d.data()
+        };
+      });
+
+      atualizarPedidosCliente();
+    };
+
+    const unsubUid =
       db.collection('pedidos')
         .where(
           'clienteUid',
@@ -2749,32 +2975,7 @@ function escutarPedidos() {
           usuarioAtual.uid
         )
         .onSnapshot(
-          snap => {
-
-            todosPedidos =
-              snap.docs
-                .map(d => ({
-                  id: d.id,
-                  ...d.data()
-                }))
-                .sort((a, b) => {
-
-                  const ta =
-                    a.criadoEm?.toMillis
-                      ? a.criadoEm.toMillis()
-                      : 0;
-
-                  const tb =
-                    b.criadoEm?.toMillis
-                      ? b.criadoEm.toMillis()
-                      : 0;
-
-                  return tb - ta;
-                });
-
-            renderizarPedidos();
-
-          },
+          snap => preencher(pedidosPorUid, snap),
           erro => {
 
             console.error(
@@ -2788,6 +2989,38 @@ function escutarPedidos() {
             );
           }
         );
+
+    let unsubTelefone = () => {};
+
+    const telefoneId =
+      telefoneNormalizado(
+        dadosClienteAtual?.telefone
+      );
+
+    if (telefoneId) {
+
+      unsubTelefone =
+        db.collection('pedidos')
+          .where(
+            'clienteTelefoneNormalizado',
+            '==',
+            telefoneId
+          )
+          .onSnapshot(
+            snap => preencher(pedidosPorTelefone, snap),
+            erro => {
+              console.warn(
+                'Consulta por telefone não permitida:',
+                erro.code
+              );
+            }
+          );
+    }
+
+    unsubPedidos = () => {
+      unsubUid();
+      unsubTelefone();
+    };
 
     return;
   }
@@ -2918,7 +3151,7 @@ function renderizarPedidos() {
                       style="font-size:0.8rem;color:var(--texto-2);margin-left:8px"
                     >
                       + ${adic.qtd}× ${adic.nome}
-                      (R$ ${subAdicional.toFixed(2)})
+                      (R$ ${subAdicional.toLocaleString('pt-BR', FORMATO_BR)})
                     </div>
                   `;
                 });
@@ -2949,7 +3182,7 @@ function renderizarPedidos() {
                   <span
                     style="color:var(--laranja);font-weight:500;margin-left:8px"
                   >
-                    R$ ${subItem.toFixed(2)}
+                    R$ ${subItem.toLocaleString('pt-BR', FORMATO_BR)}
                   </span>
                 </div>
 
@@ -3194,7 +3427,7 @@ function renderizarPedidos() {
             style="text-align:right;font-weight:700;color:var(--laranja)"
           >
             Total:
-            R$ ${Number(p.total || 0).toFixed(2)}
+            R$ ${Number(p.total || 0).toLocaleString('pt-BR', FORMATO_BR)}
           </div>
 
           ${
@@ -3332,7 +3565,7 @@ function exibirComprovante(
           </span>
 
           <span>
-            R$ ${(i.preco * i.qtd).toFixed(2)}
+            R$ ${(i.preco * i.qtd).toLocaleString('pt-BR', FORMATO_BR)}
           </span>
         </div>
       `)
@@ -3406,7 +3639,7 @@ function exibirComprovante(
         <span>
           R$ ${Number(
             pedido.total || 0
-          ).toFixed(2)}
+          ).toLocaleString('pt-BR', FORMATO_BR)}
         </span>
       </div>
 
@@ -3894,7 +4127,7 @@ async function verHistorico(
           <span class="relatorio-valor">
             R$ ${Number(
               p.total || 0
-            ).toFixed(2)}
+            ).toLocaleString('pt-BR', FORMATO_BR)}
           </span>
 
         </div>
@@ -3914,11 +4147,11 @@ async function verHistorico(
         </span>
 
         <div
-          style="font-family:'Syne',sans-serif;font-size:1.4rem;color:var(--laranja)"
+          style="font-family:'Manrope','Inter',sans-serif;font-size:1.4rem;color:var(--laranja)"
         >
           ${pedidos.length}
           pedidos ·
-          R$ ${totalGasto.toFixed(2)}
+          R$ ${totalGasto.toLocaleString('pt-BR', FORMATO_BR)}
         </div>
 
       </div>
@@ -4096,12 +4329,12 @@ async function carregarRelatorio() {
     document.getElementById(
       'rel-receita'
     ).textContent =
-      receita.toFixed(2);
+      receita.toLocaleString('pt-BR', FORMATO_BR);
 
     document.getElementById(
       'rel-ticket'
     ).textContent =
-      ticketMedio.toFixed(2);
+      ticketMedio.toLocaleString('pt-BR', FORMATO_BR);
 
     document.getElementById(
       'rel-cancelados'
@@ -4307,7 +4540,7 @@ function abrirModalAdicionais(
   ).textContent =
     `R$ ${Number(
       produto.preco
-    ).toFixed(2)}`;
+    ).toLocaleString('pt-BR', FORMATO_BR)}`;
 
   document.getElementById(
     'modal-adicionais-obs'
@@ -4377,7 +4610,7 @@ function renderizarAdicionais() {
             >
               + R$ ${Number(
                 adic.preco
-              ).toFixed(2)}
+              ).toLocaleString('pt-BR', FORMATO_BR)}
             </div>
 
           </div>
