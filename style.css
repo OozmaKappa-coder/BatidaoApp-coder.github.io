@@ -30,9 +30,15 @@
       padding: 0;
     }
 
+    button, input, select, textarea {
+      font-family: inherit; /* botões e campos usam a mesma fonte do app */
+    }
+
     html, body {
       height: 100%;           /* ocupa toda a altura da tela                  */
-      font-family: 'DM Sans', sans-serif; /* fonte base do corpo               */
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif; /* fonte base do corpo               */
+      font-variant-numeric: lining-nums; /* números alinhados e legíveis */
+      -webkit-font-smoothing: antialiased;
       background: var(--fundo);
       color: var(--texto);
       overflow-x: hidden;     /* impede rolagem horizontal indesejada          */
@@ -62,7 +68,7 @@
 
     /* Logo animado na tela de loading */
     .logo-loading {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 2.4rem;
       font-weight: 800;
       color: var(--laranja);
@@ -149,7 +155,7 @@
     .login-header { text-align: center; margin-bottom: 32px; }
 
     .login-logo {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 2.8rem;
       font-weight: 800;
       color: var(--laranja);
@@ -182,7 +188,7 @@
       border-radius: 6px;
       background: transparent;
       color: var(--texto-2);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
@@ -225,16 +231,19 @@
     /* Estilo base dos inputs de texto e senha */
     .campo-input {
       width: 100%;
-      padding: 13px 13px 13px 42px; /* espaço à esquerda para o ícone          */
+      padding: 13px 16px;     /* margem interna padrão (campo sem ícone)         */
       background: var(--fundo);
       border: 1.5px solid var(--borda);
       border-radius: var(--raio-sm);
       color: var(--texto);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1rem;
       outline: none;
       transition: border-color 0.2s;
     }
+
+    /* Campo que ainda tem ícone dentro (ex.: telefone) precisa de mais espaço à esquerda */
+    .campo-input.com-icone { padding-left: 42px; }
 
     /* Destaque verde quando o campo está em foco */
     .campo-input:focus { border-color: var(--verde); }
@@ -247,7 +256,7 @@
       color: #fff;
       border: none;
       border-radius: var(--raio-sm);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
@@ -267,7 +276,7 @@
       color: var(--texto-2);
       border: 1.5px solid var(--borda);
       border-radius: var(--raio-sm);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
@@ -315,7 +324,7 @@
     }
 
     .topbar-logo {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1.4rem;
       font-weight: 800;
       color: var(--laranja);
@@ -443,7 +452,7 @@
     }
 
     .secao-titulo {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1.1rem;
       font-weight: 700;
       color: var(--texto);
@@ -460,7 +469,7 @@
       color: #fff;
       border: none;
       border-radius: var(--raio-sm);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
@@ -538,7 +547,7 @@
       border: 1.5px solid var(--borda);
       border-radius: var(--raio-sm);
       color: var(--texto);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 0.95rem;
       outline: none;
       margin-bottom: 10px;
@@ -617,7 +626,7 @@
     }
 
     .stat-valor {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1.8rem;
       font-weight: 800;
       color: var(--laranja);
@@ -673,7 +682,7 @@
     }
 
     .pedido-num {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1.1rem;
       font-weight: 800;
       color: var(--texto);
@@ -787,7 +796,7 @@
     }
 
     .carrinho-info { font-size: 0.85rem; font-weight: 500; }
-    .carrinho-total { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; }
+    .carrinho-total { font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif; font-size: 1.1rem; font-weight: 800; }
 
     /* ---- MODAL (janela flutuante) ---- */
     .modal-overlay {
@@ -816,7 +825,7 @@
     }
 
     .modal-titulo {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1.2rem;
       font-weight: 800;
       margin-bottom: 16px;
@@ -834,10 +843,145 @@
     }
 
     .modal-total-valor {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1.2rem;
       color: var(--laranja);
     }
+
+    /* ---- MODAL "CONFIRMAR PEDIDO" ---- */
+    .modal-confirmar { padding-bottom: 28px; }
+
+    .confirmar-cabecalho {
+      padding-bottom: 14px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--borda);
+    }
+
+    .confirmar-cabecalho .modal-titulo { margin-bottom: 2px; }
+
+    .confirmar-subtitulo {
+      font-size: 0.8rem;
+      color: var(--texto-2);
+    }
+
+    .confirmar-lista { margin-bottom: 4px; }
+
+    /* Cada produto: quantidade | nome | preço */
+    .cart-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--borda);
+    }
+
+    .cart-item-linha {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      column-gap: 10px;
+      align-items: baseline;
+    }
+
+    .cart-item-qtd {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--texto-2);
+    }
+
+    .cart-item-nome {
+      font-weight: 600;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .cart-item-preco {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--laranja);
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    /* Adicionais: recuados, alinhados com o nome do produto */
+    .cart-adicionais { margin-top: 8px; }
+
+    .cart-adicional {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: 10px;
+      align-items: baseline;
+      margin-left: 2.2em;
+      padding: 3px 0;
+      font-size: 0.85rem;
+      color: var(--texto-2);
+    }
+
+    .cart-adicional-nome { overflow-wrap: anywhere; }
+
+    .cart-adicional-preco {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .cart-obs {
+      margin: 8px 0 0 2.2em;
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--texto-2);
+    }
+
+    /* Dados do pedido (entrega, mesa, pagamento) */
+    .confirmar-info {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--fundo);
+      border: 1px solid var(--borda);
+      border-radius: var(--raio-sm);
+    }
+
+    .confirmar-info:empty { display: none; }
+
+    .confirmar-info-linha {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      column-gap: 10px;
+      padding: 3px 0;
+      font-size: 0.85rem;
+    }
+
+    .confirmar-info-rotulo {
+      color: var(--texto-2);
+      font-weight: 600;
+    }
+
+    .confirmar-info-valor {
+      overflow-wrap: anywhere;
+    }
+
+    /* Total em destaque */
+    .confirmar-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin: 18px 0 18px;
+    }
+
+    .confirmar-total .modal-total-label {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .confirmar-total .modal-total-valor {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .confirmar-acoes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .confirmar-acoes .btn-primario { margin-top: 0; }
 
     /* Botão com margem no modal */
     .modal-btn { margin-top: 16px; }
@@ -1107,7 +1251,7 @@
 
     /* Logo da topbar com estilo Casa de Sucos */
     .topbar-logo {
-      font-family: 'Syne', sans-serif;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 1.3rem;
       font-weight: 800;
       background: linear-gradient(135deg, var(--verde) 40%, var(--laranja) 100%);
