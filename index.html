@@ -18,7 +18,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -35,7 +35,7 @@
     <div class="card-login">
 
       <div class="login-header">
-        <div class="login-logo">🥤 Batidão</div>
+        <div class="login-logo">Batidão</div>
         <div class="login-sub">Sistema de Pedidos</div>
       </div>
 
@@ -63,7 +63,6 @@
         <label class="campo-label">E-mail</label>
 
         <div class="campo-wrapper">
-          <span class="campo-icone">✉️</span>
           <input
             class="campo-input"
             type="email"
@@ -76,7 +75,6 @@
         <label class="campo-label">Senha</label>
 
         <div class="campo-wrapper">
-          <span class="campo-icone">🔒</span>
           <input
             class="campo-input"
             type="password"
@@ -97,7 +95,6 @@
         <label class="campo-label">Nome</label>
 
         <div class="campo-wrapper">
-          <span class="campo-icone">👤</span>
           <input
             class="campo-input"
             type="text"
@@ -110,7 +107,6 @@
         <label class="campo-label">Sobrenome</label>
 
         <div class="campo-wrapper">
-          <span class="campo-icone">👤</span>
           <input
             class="campo-input"
             type="text"
@@ -125,7 +121,7 @@
         <div class="campo-wrapper">
           <span class="campo-icone">📱</span>
           <input
-            class="campo-input"
+            class="campo-input com-icone"
             type="tel"
             id="cliente-login-telefone"
             placeholder="(19) 99999-9999"
@@ -163,7 +159,7 @@
 
       <div class="tela ativa" id="tela-pedido">
 
-        <label class="label">👤 Nome do Cliente</label>
+        <label class="label">Nome do Cliente</label>
         <input
           class="input"
           type="text"
@@ -172,7 +168,7 @@
         />
 
         <div id="campo-mesa">
-          <label class="label">🪑 Mesa / Número</label>
+          <label class="label">Mesa / Número</label>
           <input
             class="input"
             type="text"
@@ -197,7 +193,7 @@
 
         </div>
 
-        <label class="label">💳 Forma de Pagamento</label>
+        <label class="label">Forma de Pagamento</label>
 
         <select
           class="input"
@@ -225,7 +221,7 @@
 
         <div class="divider"></div>
 
-        <label class="label">📝 Observações do Pedido</label>
+        <label class="label">Observações do Pedido</label>
 
         <textarea
           class="input"
@@ -239,17 +235,16 @@
 
         <div class="filtros">
           <button class="filtro-btn ativo" onclick="filtrarPedidos('todos',this)">Todos</button>
-          <button class="filtro-btn" onclick="filtrarPedidos('aguardando',this)">⏳ Aguardando</button>
-          <button class="filtro-btn" onclick="filtrarPedidos('preparo',this)">🔥 Em Preparo</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('aguardando',this)">Aguardando</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('preparo',this)">Em Preparo</button>
           <button class="filtro-btn" onclick="filtrarPedidos('pronto',this)">✅ Pronto</button>
           <button class="filtro-btn" onclick="filtrarPedidos('saiu_entrega',this)">🛵 Saída</button>
-          <button class="filtro-btn" onclick="filtrarPedidos('entregue',this)">📦 Entregue</button>
+          <button class="filtro-btn" onclick="filtrarPedidos('entregue',this)">Entregue</button>
           <button class="filtro-btn" onclick="filtrarPedidos('cancelado',this)">❌ Cancelado</button>
         </div>
 
         <div id="lista-pedidos">
           <div class="empty">
-            <div class="empty-icon">📋</div>
             <div class="empty-msg">Nenhum pedido ainda.</div>
           </div>
         </div>
@@ -295,7 +290,7 @@
       <div class="tela" id="tela-relatorios">
 
         <div class="secao-titulo secao-titulo-sm">
-          📊 Relatórios
+          Relatórios
         </div>
 
         <label class="label">Período</label>
@@ -338,7 +333,7 @@
         <div class="card">
 
           <div class="secao-titulo secao-titulo-xs">
-            🏆 Mais Vendidos
+             Mais Vendidos
           </div>
 
           <div id="rel-mais-vendidos"></div>
@@ -390,14 +385,14 @@
 
         <div class="card" id="card-popular-produtos" style="display:none;">
 
-          <div class="info-label-lg">⚡ Funções Admin</div>
+          <div class="info-label-lg"> Funções Admin</div>
 
           <button
             class="btn-sm"
             onclick="popularProdutosComDados()"
             style="width:100%;margin-bottom:12px;"
           >
-            📥 Popular 40+ Produtos
+             Popular 40+ Produtos
           </button>
 
           <button
@@ -568,7 +563,7 @@
         class="btn-primario"
         onclick="adicionarAoCarrinhoComAdicionais()"
       >
-        ✅ Adicionar ao Carrinho
+        Adicionar ao Carrinho
       </button>
 
       <br><br>
@@ -586,36 +581,39 @@
 
   <div class="modal-overlay" id="modal-carrinho">
 
-    <div class="modal">
+    <div class="modal modal-confirmar">
 
-      <div class="modal-titulo">
-        🛒 Confirmar Pedido
+      <div class="confirmar-cabecalho">
+        <div class="modal-titulo">Confirmar Pedido</div>
+        <div class="confirmar-subtitulo" id="modal-carrinho-resumo">0 itens</div>
       </div>
 
-      <div id="modal-carrinho-itens"></div>
+      <div class="confirmar-lista" id="modal-carrinho-itens"></div>
 
-      <div class="divider"></div>
+      <div class="confirmar-info" id="modal-carrinho-info"></div>
 
-      <div class="modal-total-row">
+      <div class="confirmar-total">
         <span class="modal-total-label">Total</span>
         <span class="modal-total-valor" id="modal-total">R$ 0,00</span>
       </div>
 
-      <button
-        class="btn-primario"
-        onclick="confirmarPedido()"
-      >
-        ✅ Enviar Pedido →
-      </button>
+      <div class="confirmar-acoes">
 
-      <br><br>
+        <button
+          class="btn-primario"
+          onclick="confirmarPedido()"
+        >
+          Enviar Pedido
+        </button>
 
-      <button
-        class="btn-secundario"
-        onclick="fecharModal('modal-carrinho')"
-      >
-        Cancelar
-      </button>
+        <button
+          class="btn-secundario"
+          onclick="fecharModal('modal-carrinho')"
+        >
+          Cancelar
+        </button>
+
+      </div>
 
     </div>
 
@@ -669,7 +667,7 @@
         placeholder="Ex: 500ml, natural, sem conservantes"
       />
 
-      <label class="label">📸 Foto do Produto</label>
+      <label class="label"> Foto do Produto</label>
 
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
 
@@ -775,7 +773,7 @@
         style="display:none;width:100%;margin-bottom:12px"
         onclick="abrirModalAdicionaisProduto()"
       >
-        ⚡ Gerenciar Adicionais
+         Gerenciar Adicionais
       </button>
 
       <br><br>
@@ -796,7 +794,7 @@
     <div class="modal">
 
       <div class="modal-titulo">
-        ⚡ Adicionais -
+         Adicionais -
         <span id="modal-adic-prod-nome"></span>
       </div>
 
@@ -836,7 +834,7 @@
           class="input"
           type="number"
           id="adic-preco"
-          placeholder="5.00"
+          placeholder="5,00"
           step="0.01"
           min="0"
           style="margin-bottom:8px"
